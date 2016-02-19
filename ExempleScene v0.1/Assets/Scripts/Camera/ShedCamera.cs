@@ -42,11 +42,11 @@ public class ShedCamera : CameraMovement {
 
     protected override void Update() {
         if (target.transform.position.x > cameraTrigger) {
-            minOffset.x = thisCamera.transform.position.x - (width / offSet);
-            maxOffset.x = thisCamera.transform.position.x + (width / offSet);
+            minOffset.x = thisCamera.transform.position.x - (width / 4);
+            maxOffset.x = thisCamera.transform.position.x + (width / 4);
 
-            minOffset.y = thisCamera.transform.position.y - (height / offSet);
-            maxOffset.y = thisCamera.transform.position.y + (height / offSet);
+            minOffset.y = thisCamera.transform.position.y - (height / 4);
+            maxOffset.y = thisCamera.transform.position.y + (height / 4);
 
             if (target.position.x < minOffset.x) {
                 thisCamera.transform.position = new Vector3(thisCamera.transform.position.x + (target.transform.position.x - minOffset.x), thisCamera.transform.position.y, -10);
@@ -83,6 +83,14 @@ public class ShedCamera : CameraMovement {
             else
                 thisCamera.transform.position = new Vector3(min.x + cameraMove, thisCamera.transform.position.y, thisCamera.transform.position.z);
         }
-        Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect + Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f, Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);    
+
+
+
+
+
+
+
+
+
     }
-} 
+}

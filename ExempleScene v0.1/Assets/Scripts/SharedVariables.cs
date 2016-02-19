@@ -1,33 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SharedVariables : MonoBehaviour
-{
+public class SharedVariables : MonoBehaviour {
     private static string newRoom;
     private static bool outFromDreamworld;
 
-    public static bool OutFromDreamworld
-    {
-        set
-        {
+    public static bool OutFromDreamworld {
+        set {
             outFromDreamworld = value;
         }
-        get
-        {
+        get {
             return outFromDreamworld;
         }
     }
-    public static string NewRoom
-    {
-        set
-        {
+    public static string NewRoom {
+        set {
             newRoom = value;
         }
-        get
-        {
+        get {
             return newRoom;
         }
     }
 }
-
-

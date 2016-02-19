@@ -2,22 +2,17 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class LoadScene : MonoBehaviour
-{
+public class LoadScene : MonoBehaviour{
 
-    public string nextScene;
+	public string nextScene;
     public string nextRoom;
 
-    public void NextScene(string level, string room)
-    {
+    public void NextScene(string level, string room) {
         SceneManager.LoadScene(level);
     }
 
-    void Start()
-    {
+    void Start() {
         SharedVariables.NewRoom = nextRoom;
         NextScene(nextScene, nextRoom);
     }
 }
-
-

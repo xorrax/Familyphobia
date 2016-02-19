@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 
 // !OBS! NPC class mÂste finnas
@@ -18,40 +19,35 @@ public class Player : MonoBehaviour {
     private bool holdingItem = false;
     private Vector3 targetPosition = Vector3.zero;
 
-    void Start()
-    {
+    void Start() {
         DontDestroyOnLoad(this.gameObject);
     }
 
-    void OnLevelWasLoaded(int scene)
-    {
+    void OnLevelWasLoaded(int scene) {
         if (scene != 0)
         {
             string newRoom = SharedVariables.NewRoom;
             GameObject[] mainCameras = GameObject.FindGameObjectsWithTag("MainCamera");
-            foreach (GameObject camera in mainCameras)
-            {
+            foreach (GameObject camera in mainCameras) {
                 camera.GetComponent<CameraMovement>().target = this.transform;
                 camera.GetComponent<Camera>().enabled = false;
             }
             GameObject.Find(newRoom + "_Camera").GetComponent<Camera>().enabled = true;
-            pathfinding.setGrid(GameObject.Find(newRoom + "_Background"));
-            if (SharedVariables.OutFromDreamworld)
+                pathfinding.setGrid(GameObject.Find(newRoom + "_Background"));
+            if (SharedVariables.OutFromDreamworld) 
                 transform.position = GameObject.Find(newRoom + "_DreamworldSpawn").GetComponent<Transform>().position;
             else
                 transform.position = GameObject.Find(newRoom + "_Spawn").GetComponent<Transform>().position;
-
-
+            
+            
         }
     }
 
-
     // Update is called once per frame
     void Update() {
-        Debug.Log(holdingItem.ToString());
         if (Time.time >= nextTime) {
             if (Input.GetMouseButton(0) && !holdingItem) {
-                //s‰tter target som punkten man klickade pÅE
+                //s‰tter target som punkten man klickade pÂ
                 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 //S‰tter r‰tt z position
                 targetPosition.z = distance;
