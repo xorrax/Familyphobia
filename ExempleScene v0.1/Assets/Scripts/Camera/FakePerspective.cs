@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
-public class FakePerspective : MonoBehaviour {
+public class FakePerspective : MonoBehaviour
+{
 
     Transform thisObject;
     Vector3 startScale;
@@ -11,17 +13,25 @@ public class FakePerspective : MonoBehaviour {
     float minY;
 
 
-	void Start () {
+    void Start()
+    {
         thisObject = GetComponent<Transform>();
         startScale = thisObject.localScale;
-	}
-	void Update () {
-        minY = Camera.main.GetComponent<CameraMovement>().getMinY();
-        maxY = Camera.main.GetComponent<CameraMovement>().getMaxY();
-        height = maxY - transform.position.y;
-        float newScale = ((height * startScale.y) * depth) * 0.1f;
+    }
+    void Update()
+    {
+        if (SceneManager.GetActiveScene().name != "LoadScene")
+        {
+            minY = Camera.main.GetComponent<CameraMovement>().getMinY();
+            maxY = Camera.main.GetComponent<CameraMovement>().getMaxY();
+            height = maxY - transform.position.y;
+            float newScale = ((height * startScale.y) * depth) * 0.1f;
 
 
-        thisObject.localScale = new Vector3(newScale, newScale, thisObject.localScale.z);
-	}
+            thisObject.localScale = new Vector3(newScale, newScale, thisObject.localScale.z);
+        }
+    }
 }
+
+
+

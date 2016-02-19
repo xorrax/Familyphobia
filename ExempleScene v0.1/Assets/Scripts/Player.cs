@@ -18,9 +18,33 @@ public class Player : MonoBehaviour {
     private bool holdingItem = false;
     private Vector3 targetPosition = Vector3.zero;
 
-    void Start() {
-        pathfinding = GetComponent<Pathfinding>();
+    void Start()
+    {
+        DontDestroyOnLoad(this.gameObject);
     }
+
+    void OnLevelWasLoaded(int scene)
+    {
+        if (scene != 0)
+        {
+            string newRoom = SharedVariables.NewRoom;
+            GameObject[] mainCameras = GameObject.FindGameObjectsWithTag("MainCamera");
+            foreach (GameObject camera in mainCameras)
+            {
+                camera.GetComponent<CameraMovement>().target = this.transform;
+                camera.GetComponent<Camera>().enabled = false;
+            }
+            GameObject.Find(newRoom + "_Camera").GetComponent<Camera>().enabled = true;
+            pathfinding.setGrid(GameObject.Find(newRoom + "_Background"));
+            if (SharedVariables.OutFromDreamworld)
+                transform.position = GameObject.Find(newRoom + "_DreamworldSpawn").GetComponent<Transform>().position;
+            else
+                transform.position = GameObject.Find(newRoom + "_Spawn").GetComponent<Transform>().position;
+
+
+        }
+    }
+
 
     // Update is called once per frame
     void Update() {
