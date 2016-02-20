@@ -8,13 +8,12 @@ public class Grid : MonoBehaviour {
     BoxCollider boxCollider;
     bool walkable;
     public List<Node> path = new List<Node>();
+    public Vector2 gridBoxSize = new Vector2(0.3f, 0.3f);
 
     int gridSizeX, gridSizeY;
     void OnLevelWasLoaded(){
-        //boxCollider = GameObject.Find("Jack").GetComponent<BoxCollider>();
-        boxCollider = GameObject.FindGameObjectWithTag("Player").GetComponent<BoxCollider>();
-        gridSizeX = Mathf.RoundToInt(gridWorldSize.x / boxCollider.size.x);
-        gridSizeY = Mathf.RoundToInt(gridWorldSize.y / boxCollider.size.y);
+        gridSizeX = Mathf.RoundToInt(gridWorldSize.x / gridBoxSize.x);
+        gridSizeY = Mathf.RoundToInt(gridWorldSize.y / gridBoxSize.y);
         createGrid();
     }
 
@@ -30,7 +29,7 @@ public class Grid : MonoBehaviour {
         Vector3 bottomLeft = new Vector3(transform.position.x - (gridWorldSize.x / 2), transform.position.y - ( gridWorldSize.y / 2 ));
         for (int x = 0; x < gridSizeX; x++){
             for (int y = 0; y < gridSizeY; y++){
-                Vector3 worldPoint = new Vector3(bottomLeft.x + (x * boxCollider.size.x), bottomLeft.y + (y * boxCollider.size.y), 0);
+                Vector3 worldPoint = new Vector3(bottomLeft.x + (x * gridBoxSize.x), bottomLeft.y + (y * gridBoxSize.y), 0);
                 Vector3 castOrigin = new Vector3(worldPoint.x, worldPoint.y, -1);
                 Ray ray = new Ray(castOrigin, Vector3.forward);
                 RaycastHit hit;
@@ -50,7 +49,7 @@ public class Grid : MonoBehaviour {
                     walkable = false;
                 }
                
-                grid[x, y] = new Node(new Vector3(worldPoint.x + (boxCollider.size.x / 2), worldPoint.y + (boxCollider.size.y / 2), worldPoint.z), walkable, x, y);
+                grid[x, y] = new Node(new Vector3(worldPoint.x + (gridBoxSize.x / 2), worldPoint.y + (gridBoxSize.y / 2), worldPoint.z), walkable, x, y);
             }
 
         }
@@ -93,7 +92,7 @@ public class Grid : MonoBehaviour {
                 if (path != null)
                     if (path.Contains(n))
                         Gizmos.color = Color.black;
-                Gizmos.DrawCube(n.position, new Vector3(boxCollider.size.x, boxCollider.size.y, 1));
+                Gizmos.DrawCube(n.position, new Vector3(gridBoxSize.x, gridBoxSize.y, 1));
             }
         }
     }

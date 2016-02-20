@@ -29,6 +29,7 @@ ExportedObj/
 *.mp3
 *.png
 */Library/
+*/Temp/
 *.cache
 *.txt
 

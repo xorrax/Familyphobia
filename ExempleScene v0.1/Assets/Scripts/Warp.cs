@@ -16,8 +16,9 @@ public class Warp : MonoBehaviour {
     private float alpha;
     private GameObject warpFade;
 
-    void Start() {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    void OnLevelWasLoaded() {
+        //Måste fixa så att det går att hitta med tag
+        player = GameObject.Find("Player").GetComponent<Player>();
         warpTo = GameObject.Find(newRoom + "_Spawn").GetComponent<Transform>();
         newBackground = GameObject.Find(newRoom + "_Background");
         newCamera = GameObject.Find(newRoom + "_Camera");
@@ -62,6 +63,7 @@ public class Warp : MonoBehaviour {
             alpha = warpFade.GetComponent<SpriteRenderer>().color.a;
             if (alpha <= 0) {
                 GameObject.Destroy(warpFade);
+                player.pathfinding.setIsActive(true);
                 StopCoroutine("FadeOut");
             }
             yield return null;
@@ -70,15 +72,17 @@ public class Warp : MonoBehaviour {
 
     void OnTriggerEnter(Collider collider) {
         if (collider.gameObject.tag == "Player") {
-            player.pathfinding.endPathfinding();
             if (!GameObject.Find("WarpFade")) {
-
+                player.pathfinding.endPathfinding();
+                player.pathfinding.setIsActive(false);
                 audioSource.Play();
 
                 //Skapar Fade objektet
                 warpFade = new GameObject();
                 warpFade.name = ("WarpFade");
                 warpFade.AddComponent<SpriteRenderer>();
+                warpFade.AddComponent<BoxCollider>();
+                warpFade.tag = "warpFade";
                 warpFade.GetComponent<SpriteRenderer>().sprite = warpBlock;
                 warpFade.GetComponent<SpriteRenderer>().color = color;
                 alpha = color.a;

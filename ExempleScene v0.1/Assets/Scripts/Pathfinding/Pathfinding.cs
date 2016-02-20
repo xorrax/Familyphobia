@@ -9,15 +9,19 @@ public class Pathfinding : MonoBehaviour
     public Movement movement;
     private Vector3 targetPosition;
     public GameObject startingBackground;
+    private Animator anim;
+    private bool activated = true;
     Grid grid;
     Queue<Vector3> moveQueue = new Queue<Vector3>();
     public Vector3 Target{
-        set{
-            targetPosition = value;
-            moveQueue.Clear();
-            FindPath(seeker.transform.position, targetPosition);
-            if (moveQueue.Count != 0){
-                movement.Target = moveQueue.Peek();
+        set {
+            if (activated) {
+                targetPosition = value;
+                moveQueue.Clear();
+                FindPath(seeker.transform.position, targetPosition);
+                if (moveQueue.Count != 0) {
+                    movement.Target = moveQueue.Peek();
+                }
             }
 
         }
@@ -27,6 +31,7 @@ public class Pathfinding : MonoBehaviour
     }
     void Start(){
         movement = GetComponent<Movement>();
+        anim = GetComponent<Animator>();
     }
     public void setGrid(GameObject newBackground) {
         grid = newBackground.GetComponent<Grid>();
@@ -52,6 +57,14 @@ public class Pathfinding : MonoBehaviour
         moveSeeker();
     }
 
+    public void setIsActive(bool boolean) {
+        activated = boolean;
+    }
+
+    public bool getIsActive() {
+        return activated;
+    }
+
     void moveSeeker(){
         if (moveQueue.Count != 0){
             if (moveQueue.Peek() == movement.transform.position){
@@ -68,7 +81,10 @@ public class Pathfinding : MonoBehaviour
         }
     }
     public void endPathfinding() {
-        movement.Target = seeker.transform.position;
+        anim.SetBool("Walking", false);
+        anim.SetFloat("hSpeed", 0);
+        anim.SetFloat("vSpeed", 0);
+        Target = seeker.position;
         moveQueue.Clear();
     }
 

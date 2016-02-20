@@ -46,6 +46,8 @@ public class Movement : MonoBehaviour {
             anim.SetFloat("vSpeed", direction.y);
             if (pathfinding.getTargetNodePosition() == transform.position) {
                 anim.SetBool("Walking", false);
+                anim.SetFloat("hSpeed", 0);
+                anim.SetFloat("vSpeed", 0);
             }
             yield return null;
         }
