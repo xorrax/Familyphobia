@@ -23,11 +23,16 @@ public class Inventory : MonoBehaviour
 
     void Start()
     {
-        invInstance = this;
-        thisCamera = Camera.main;
-        distance = Vector3.Distance(transform.position, thisCamera.transform.position);
-        cameraOffsetY = 0 - thisCamera.transform.position.y;
-        transform.parent = thisCamera.transform;
+        DontDestroyOnLoad(this.gameObject);
+    }
+
+    void OnLevelWasLoaded(int level)
+    {
+        if (level != 0)
+        {
+            invInstance = this;
+            thisCamera = Camera.main;
+        }
     }
     void Update()
     {
@@ -63,7 +68,6 @@ public class Inventory : MonoBehaviour
 
     void SetInventory()
     {
-        currentOffsetY = 0 - thisCamera.transform.position.y - cameraOffsetY;
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             activateInv = !activateInv;
@@ -92,11 +96,4 @@ public class Inventory : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
     }
-    
-    void ChangeCamera(Camera newCamera)
-    {
-        thisCamera = newCamera;
-        transform.parent = thisCamera.transform;
-    }
-    
 }

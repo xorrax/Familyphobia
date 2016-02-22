@@ -73,5 +73,14 @@ public class DefaultCamera : CameraMovement {
                 thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, max.y, -10);
             }
         }
+
+        if (thisCamera.enabled)
+        {
+            Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
+                Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
+                Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
+
+            Debug.Log(thisCamera.name);
+        }
     }
 }

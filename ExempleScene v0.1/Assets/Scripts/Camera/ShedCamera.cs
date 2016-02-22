@@ -84,13 +84,13 @@ public class ShedCamera : CameraMovement {
                 thisCamera.transform.position = new Vector3(min.x + cameraMove, thisCamera.transform.position.y, thisCamera.transform.position.z);
         }
 
+        if (thisCamera.enabled)
+        {
+            Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
+                Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
+                Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
 
-
-
-
-
-
-
-
+            Debug.Log(thisCamera.name);
+        }
     }
 }
