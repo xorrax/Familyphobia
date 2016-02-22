@@ -19,7 +19,9 @@ public class Inventory : MonoBehaviour
 
     float fps = 0.0f;
     float deltaTime = 0.0f;
-
+    /// <summary>
+    /// oiashdfåsdgthas¨äådfghuasdfpui
+    /// </summary>
 
     void Start()
     {
