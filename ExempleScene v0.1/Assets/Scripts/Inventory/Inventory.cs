@@ -33,7 +33,11 @@ public class Inventory : MonoBehaviour
         if (level != 0)
         {
             invInstance = this;
+<<<<<<< HEAD
             
+=======
+            thisCamera = Camera.main;
+>>>>>>> origin/master
         }
     }
     void Update()
@@ -80,6 +84,7 @@ public class Inventory : MonoBehaviour
 
     void SetInventory()
     {
+<<<<<<< HEAD
         if (thisCamera != null) {
             
             if (activateInv) {
@@ -94,6 +99,28 @@ public class Inventory : MonoBehaviour
                     transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
                     SetPositions();
                 }
+=======
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            activateInv = !activateInv;
+        }
+        if (activateInv)
+        {
+            if (transform.position.y < -thisCamera.orthographicSize - gameObject.GetComponent<SpriteRenderer>().bounds.size.y + 1.4f)
+            {
+                transform.Translate(0, 0.05f, 0);
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+                SetPositions();
+            }
+        }
+        else
+        {
+            if (transform.position.y > -thisCamera.orthographicSize - 2 * gameObject.GetComponent<SpriteRenderer>().bounds.size.y + 1.4f)
+            {
+                transform.Translate(0, -0.05f, 0);
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+                SetPositions();
+>>>>>>> origin/master
             }
         }
     }
