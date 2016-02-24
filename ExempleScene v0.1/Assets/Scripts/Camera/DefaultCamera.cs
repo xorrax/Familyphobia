@@ -10,6 +10,7 @@ public class DefaultCamera : CameraMovement {
     float width;
     Vector2 minOffset;
     Vector2 maxOffset;
+    public float offSet = 4;
 
     protected override void Start() {
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
@@ -38,12 +39,12 @@ public class DefaultCamera : CameraMovement {
         return max.y + (height / 2);
     }
 
-    protected override void Update() {
-        minOffset.x = thisCamera.transform.position.x - (width / 4);
-        maxOffset.x = thisCamera.transform.position.x + (width / 4);
+    protected override void FixedUpdate() {
+        minOffset.x = thisCamera.transform.position.x - (width / offSet);
+        maxOffset.x = thisCamera.transform.position.x + (width / offSet);
 
-        minOffset.y = thisCamera.transform.position.y - (height / 4);
-        maxOffset.y = thisCamera.transform.position.y + (height / 4);
+        minOffset.y = thisCamera.transform.position.y - (height / offSet);
+        maxOffset.y = thisCamera.transform.position.y + (height / offSet);
 
         if (target.position.x < minOffset.x) {
             thisCamera.transform.position = new Vector3(thisCamera.transform.position.x + (target.transform.position.x - minOffset.x), thisCamera.transform.position.y, -10);
@@ -71,6 +72,16 @@ public class DefaultCamera : CameraMovement {
             thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, thisCamera.transform.position.y + (target.transform.position.y - minOffset.y), -10);
             if (thisCamera.transform.position.y > max.y) {
                 thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, max.y, -10);
+            }
+        }
+
+        if (thisCamera.enabled)
+        {
+            if (Inventory.invInstance != null) {
+                Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
+                    Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
+                    Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
+
             }
         }
     }

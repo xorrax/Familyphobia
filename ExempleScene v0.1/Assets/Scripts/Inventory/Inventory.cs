@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Inventory : MonoBehaviour
 {
 
-    List<GameObject> itemList = new List<GameObject>();
+    public List<GameObject> itemList = new List<GameObject>();
     public static Inventory invInstance;
     private Camera thisCamera;
 
@@ -19,22 +19,39 @@ public class Inventory : MonoBehaviour
 
     float fps = 0.0f;
     float deltaTime = 0.0f;
-
+    /// <summary>
+    /// oiashdfåsdgthas¨äådfghuasdfpui
+    /// </summary>
 
     void Start()
     {
-        invInstance = this;
-        thisCamera = Camera.main;
-        distance = Vector3.Distance(transform.position, thisCamera.transform.position);
-        cameraOffsetY = 0 - thisCamera.transform.position.y;
-        transform.parent = thisCamera.transform;
+        DontDestroyOnLoad(this.gameObject);
+    }
+
+    void OnLevelWasLoaded(int level)
+    {
+        if (level != 0)
+        {
+            invInstance = this;
+            
+        }
     }
     void Update()
     {
+        if(thisCamera == null)
+            thisCamera = Camera.main;
+
+        if (Input.GetKeyDown(KeyCode.LeftControl)) {
+            activateInv = !activateInv;
+        }
+        
+    }
+
+    void FixedUpdate() {
         SetInventory();
     }
 
-    void AddItem(GameObject item)
+    public void AddItem(GameObject item)
     {
         itemList.Add(item);
 
@@ -46,7 +63,7 @@ public class Inventory : MonoBehaviour
         item.transform.SetParent(gameObject.transform);
     }
 
-    void RemoveItem(GameObject item)
+    public void RemoveItem(GameObject item)
     {
         itemList.Remove(item);
     }
@@ -63,27 +80,20 @@ public class Inventory : MonoBehaviour
 
     void SetInventory()
     {
-        currentOffsetY = 0 - thisCamera.transform.position.y - cameraOffsetY;
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            activateInv = !activateInv;
-        }
-        if (activateInv)
-        {
-            if (transform.position.y < -thisCamera.orthographicSize - gameObject.GetComponent<SpriteRenderer>().bounds.size.y + 1.4f)
-            {
-                transform.Translate(0, 0.05f, 0);
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-                SetPositions();
-            }
-        }
-        else
-        {
-            if (transform.position.y > -thisCamera.orthographicSize - 2 * gameObject.GetComponent<SpriteRenderer>().bounds.size.y + 1.4f)
-            {
-                transform.Translate(0, -0.05f, 0);
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-                SetPositions();
+        if (thisCamera != null) {
+            
+            if (activateInv) {
+                if (transform.position.y < -thisCamera.orthographicSize - gameObject.GetComponent<SpriteRenderer>().bounds.size.y + 1.4f) {
+                    transform.Translate(0, 0.05f, 0);
+                    transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+                    SetPositions();
+                }
+            } else {
+                if (transform.position.y > -thisCamera.orthographicSize - 2 * gameObject.GetComponent<SpriteRenderer>().bounds.size.y + 1.4f) {
+                    transform.Translate(0, -0.05f, 0);
+                    transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+                    SetPositions();
+                }
             }
         }
     }
@@ -92,11 +102,4 @@ public class Inventory : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
     }
-    
-    void ChangeCamera(Camera newCamera)
-    {
-        thisCamera = newCamera;
-        transform.parent = thisCamera.transform;
-    }
-    
 }

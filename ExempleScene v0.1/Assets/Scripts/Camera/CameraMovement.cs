@@ -7,7 +7,7 @@ public abstract class CameraMovement : MonoBehaviour {
     public Transform target;
 
     protected virtual void Start() { }
-    protected virtual void Update() { }
+    protected virtual void FixedUpdate() { }
     public abstract float getMinY();
     public abstract float getMaxY();
 }

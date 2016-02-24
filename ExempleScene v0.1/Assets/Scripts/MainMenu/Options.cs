@@ -3,10 +3,8 @@ using System.Collections;
 using UnityEngine.UI;
 
 
-
 public class Options : MonoBehaviour {
     Dropdown dropdownMenuResolution;
-
     void Start() {
         Screen.fullScreen = true;
         dropdownMenuResolution = GameObject.Find("DropdownRes").GetComponent<Dropdown>();

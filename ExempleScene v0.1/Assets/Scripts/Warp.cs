@@ -18,7 +18,7 @@ public class Warp : MonoBehaviour {
 
     void OnLevelWasLoaded() {
         //Måste fixa så att det går att hitta med tag
-        player = GameObject.Find("Player").GetComponent<Player>();
+        player = GameObject.Find("Jack").GetComponent<Player>();
         warpTo = GameObject.Find(newRoom + "_Spawn").GetComponent<Transform>();
         newBackground = GameObject.Find(newRoom + "_Background");
         newCamera = GameObject.Find(newRoom + "_Camera");

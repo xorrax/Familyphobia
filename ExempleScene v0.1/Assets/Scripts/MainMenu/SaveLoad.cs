@@ -14,7 +14,7 @@ public class SaveLoad : MonoBehaviour
         FileStream file = File.Create(Application.persistentDataPath + "/playerinfo1.dat");
 
         PlayerInfo info = new PlayerInfo();
-       //info.leg = leg;
+        //info.leg = leg;
         //stuff
 
         bf.Serialize(file, info);
