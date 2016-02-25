@@ -10,7 +10,7 @@ public class DefaultCamera : CameraMovement {
     float width;
     Vector2 minOffset;
     Vector2 maxOffset;
-    public float offSet = 4;
+    public float offSet = 14;
 
     protected override void Start() {
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
