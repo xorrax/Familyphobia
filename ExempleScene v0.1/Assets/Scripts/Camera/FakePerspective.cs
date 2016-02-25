@@ -25,7 +25,7 @@ public class FakePerspective : MonoBehaviour {
                 maxY = Camera.main.GetComponent<CameraMovement>().getMaxY();
                 height = maxY - transform.position.y;
                 float newScale = ((height * startScale.y) * depth) * 0.1f;
-                float newSpeed = ((height * startSpeed) * depth) * 0.1f;
+                float newSpeed = ((height * startSpeed) * depth * 0.8f) * 0.1f;
 
 
                 thisObject.localScale = new Vector3(newScale, newScale, thisObject.localScale.z);
