@@ -10,8 +10,6 @@ using System.Collections.Generic;
 public class Player : MonoBehaviour {
     //Skapar ett nytt movement objek(länka Movement scriptet till denna)
     public Pathfinding pathfinding;
-    //Hur långt ifrån kameran objektet är (Till för att positionen ska hamna rätt från skärm till världen)
-    public float distance = 0f;
     public Animator anim;
     float interval = 0.2f;
     float nextTime = 0;
@@ -56,7 +54,7 @@ public class Player : MonoBehaviour {
                 //sätter target som punkten man klickade på
                 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 //Sätter rätt z position
-                targetPosition.z = distance;
+                targetPosition.z = 0;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
                 //kollar ifall rayen träffar något

@@ -52,4 +52,12 @@ public class Movement : MonoBehaviour {
             yield return null;
         }
     }
+
+    public void setSpeed(float newSpeed) {
+        speed = newSpeed;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
 }

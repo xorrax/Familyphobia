@@ -3,6 +3,7 @@ using System.Collections;
 public class Warp : MonoBehaviour {
     public string currentRoom;
     public string newRoom;
+    public float newScale = 0.5f;
     private Player player;
     private Transform warpTo;
     private GameObject newBackground;
@@ -26,7 +27,6 @@ public class Warp : MonoBehaviour {
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = warpSound;
     }
-    public int scene = 1;
 
     IEnumerator FadeIn() {
         while (alpha <= 1) {
@@ -37,6 +37,8 @@ public class Warp : MonoBehaviour {
                 newBackground.GetComponent<Grid>().gameObject.SetActive(true);
                 player.pathfinding.setGrid(newBackground);
                 player.transform.position = warpTo.transform.position;
+               // player.transform.localScale = new Vector3(newScale, newScale, player.transform.localScale.z);
+                player.gameObject.GetComponent<FakePerspective>().setStartScale(new Vector3(newScale, newScale, player.transform.localScale.z));
                 player.pathfinding.endPathfinding();
 
 
@@ -91,7 +93,7 @@ public class Warp : MonoBehaviour {
                 warpFade.transform.position = GameObject.Find(currentRoom + "_Camera").transform.position;
                 warpFade.transform.position = new Vector3(warpFade.transform.position.x, warpFade.transform.position.y, warpFade.transform.position.z + 1f);
                 warpFade.GetComponent<SpriteRenderer>().sortingOrder = 1000;
-                warpFade.transform.localScale += new Vector3(8 * transform.localScale.x, 8 * transform.localScale.y, transform.localScale.z);
+                warpFade.transform.localScale += new Vector3(20 * transform.localScale.x, 8 * transform.localScale.y, transform.localScale.z);
 
                 StartCoroutine("FadeIn");
             }
