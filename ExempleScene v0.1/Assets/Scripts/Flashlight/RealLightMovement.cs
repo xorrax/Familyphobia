@@ -4,34 +4,43 @@ using System.Collections;
 public class RealLightMovement : MonoBehaviour {
     public GameObject realLightSprite;
     public bool lightToggleCheck = false;
-    public Vector2 distanceModifier;
-    public float depthSpeed;
-    public Vector3 standardPosition;
-    float zMovement;
+    public float offSet;
     public GameObject Jack;
+    public float speed;
 
     void realLightDirection() {
         if (Camera.main != null) {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Quaternion rot = Quaternion.LookRotation(transform.position - mousePosition, Vector3.forward);
-            transform.rotation = rot;
-            transform.eulerAngles = new Vector3(-transform.eulerAngles.x, -transform.eulerAngles.y, 0);
+            //Quaternion rot = Quaternion.LookRotation(transform.position - mousePosition, Vector3.up);
+            //transform.localRotation = rot;
+            //transform.eulerAngles = new Vector3(-transform.eulerAngles.x, -transform.eulerAngles.y, 0);
+            ////transform.localRotation = Quaternion.LookRotation(mousePosition);
+            //////Plane playerPlane = new Plane(Vector3.up, transform.position);
+            //////Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            //////float hitdist = 0.0f;
+            //////if (playerPlane.Raycast (ray, out hitdist)) {
+            //////    Vector3 targetPoint = ray.GetPoint(hitdist);
+            //////    Quaternion targetRotation = Quaternion.LookRotation(targetPoint - transform.position);
+            //////    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, speed * Time.deltaTime);
+            //////}
         }
     }
 
     void realLightDepth() {
-        //if (Camera.main != null) {
-        //    Vector3 mousePositionRelative = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, 0);
-        //    if (mousePositionRelative.x > distanceModifier.x || -mousePositionRelative.x < -distanceModifier.x || mousePositionRelative.y > distanceModifier.y || -mousePositionRelative.y < distanceModifier.y) {
-        //        if (transform.position.z > standardPosition.z) {
-        //            transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y + 3.4f, transform.position.z + mousePositionRelative.z);
-        //        }
-        //    } else if (mousePositionRelative.x < distanceModifier.x || -mousePositionRelative.x > -distanceModifier.x || mousePositionRelative.y < distanceModifier.y || -mousePositionRelative.y > -distanceModifier.y) {
-        //        if (transform.position.z < standardPosition.z) {
-        //            transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y + 3.4f, transform.position.z - mousePositionRelative.z);
-        //        }
-        //    }
-        //}
+        if (Camera.main != null) {
+            Vector3 mousePosition = (Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            if (mousePosition.x > Jack.transform.position.x + offSet || mousePosition.x < Jack.transform.position.x - offSet) {
+                transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -6.7f + Mathf.Abs((Jack.transform.position.x - mousePosition.x)));
+                if (transform.position.z >= 0) {
+                    transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -0.10f);
+                }
+            } 
+            else if (mousePosition.x > Jack.transform.position.x + offSet || -mousePosition.x < -Jack.transform.position.x - offSet) {
+                if (transform.position.z <= -6.7) {
+                    transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -6.7f);
+                }
+            }
+        }
     }
 
     void FixedUpdate() {
