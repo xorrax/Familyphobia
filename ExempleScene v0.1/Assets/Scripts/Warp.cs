@@ -5,6 +5,7 @@ public class Warp : MonoBehaviour {
     public string newRoom;
     public float newScale = 0.5f;
     public float newDepth = 1f;
+    public float newDepthOffset;
     private Player player;
     private Transform warpTo;
     private GameObject newBackground;
@@ -40,6 +41,7 @@ public class Warp : MonoBehaviour {
                 player.transform.position = warpTo.transform.position;
                 player.gameObject.GetComponent<FakePerspective>().setStartScale(new Vector3(newScale, newScale, player.transform.localScale.z));
                 player.gameObject.GetComponent<FakePerspective>().depth = newDepth;
+                player.gameObject.GetComponent<FakePerspective>().depthOffset = newDepthOffset;
                 player.pathfinding.endPathfinding();
 
 

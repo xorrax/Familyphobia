@@ -9,7 +9,7 @@ public class FakePerspective : MonoBehaviour {
     float startSpeed;
     float height;
     public float depth;
-    public float multiplier;
+    public float depthOffset;
     float maxY;
     float minY;
 
@@ -21,10 +21,7 @@ public class FakePerspective : MonoBehaviour {
 	}
 	void Update () {
         if (SceneManager.GetActiveScene().name != "LoadScene") {
-            //if (Camera.main != null) {
-            //    minY = Camera.main.GetComponent<CameraMovement>().getMinY();
-            //    maxY = Camera.main.GetComponent<CameraMovement>().getMaxY();
-                height = -transform.localPosition.y + multiplier;
+                height = -transform.localPosition.y + depthOffset;
                 float newScale = ((height * startScale.y) * depth) * 0.1f;
                 float newSpeed = ((height * startSpeed) * depth * 0.8f) * 0.1f;
 
