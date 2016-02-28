@@ -49,8 +49,13 @@ public class Movement : MonoBehaviour {
                 anim.SetFloat("hSpeed", 0);
                 anim.SetFloat("vSpeed", 0);
             }
+
+            lastPosition = transform.position;
             yield return null;
         }
+        anim.SetBool("Walking", false);
+        anim.SetFloat("hSpeed", 0);
+        anim.SetFloat("vSpeed", 0);
     }
 
     public void setSpeed(float newSpeed) {

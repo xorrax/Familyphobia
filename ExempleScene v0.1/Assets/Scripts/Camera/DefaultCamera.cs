@@ -83,8 +83,6 @@ public class DefaultCamera : CameraMovement {
                     Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
 
             }
-
-            Debug.Log(thisCamera.name);
         }
     }
 }

@@ -45,11 +45,6 @@ public class Warp : MonoBehaviour {
                 player.pathfinding.endPathfinding();
 
 
-                player.anim.SetBool("Walking", false);
-                player.anim.SetFloat("hSpeed", 0);
-                player.anim.SetFloat("vSpeed", 0);
-
-
                 GameObject.Find(currentRoom + "_Camera").GetComponent<Camera>().enabled = false;
                 newCamera.GetComponent<Camera>().enabled = true;
                 warpFade.transform.position = new Vector3(newCamera.transform.position.x, newCamera.transform.position.y, newCamera.transform.position.z + 1);
@@ -59,6 +54,7 @@ public class Warp : MonoBehaviour {
             }
             yield return null;
         }
+        
     }
 
     IEnumerator FadeOut() {

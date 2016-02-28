@@ -84,6 +84,7 @@ public class Pathfinding : MonoBehaviour
         anim.SetBool("Walking", false);
         anim.SetFloat("hSpeed", 0);
         anim.SetFloat("vSpeed", 0);
+        anim.Play("Idle");
         Target = seeker.position;
         moveQueue.Clear();
     }
