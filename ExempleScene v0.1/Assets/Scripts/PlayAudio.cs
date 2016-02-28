@@ -5,9 +5,9 @@ public class PlayAudio : MonoBehaviour {
     public AudioClip soundEffect;
     AudioSource audioSource;
 
-    public void playAudio(AudioClip audioClip) {
+    void Start() {
         audioSource = GetComponent<AudioSource>();
-        audioSource.clip = audioClip;
+        audioSource.clip = soundEffect;
         audioSource.Play();
     }
 
