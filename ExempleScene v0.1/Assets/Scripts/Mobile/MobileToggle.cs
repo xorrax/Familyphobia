@@ -8,7 +8,6 @@ public class MobileToggle : MonoBehaviour {
     public GameObject saveMenu;
     public GameObject loadMenu;
     public GameObject exitMenu;
-    public Movement movementEntity;
 
     void Start() {
         for (int i = 0; i < transform.childCount; ++i) {
@@ -19,6 +18,7 @@ public class MobileToggle : MonoBehaviour {
     void togglePhone() {
         isToggled = !isToggled;
         transform.GetChild(1).gameObject.SetActive(isToggled);
+        GameObject.FindGameObjectWithTag("Player").GetComponent<Pathfinding>().setIsActive(isToggled);
     }
 
 
