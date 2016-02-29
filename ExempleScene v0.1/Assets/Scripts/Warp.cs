@@ -13,7 +13,7 @@ public class Warp : MonoBehaviour {
     public Color color;
     public Sprite warpBlock;
     public AudioClip warpSound;
-    public float fadeValue;
+    public float fadeValue = 0.05f;
     public Texture2D cursorTexture;
     private AudioSource audioSource;
     private float alpha;

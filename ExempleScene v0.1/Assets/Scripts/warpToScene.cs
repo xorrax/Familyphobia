@@ -19,4 +19,5 @@ public class warpToScene : MonoBehaviour {
         player.gameObject.GetComponent<FakePerspective>().depthOffset = newSceneDepthOffset;
         SceneManager.LoadScene(level);
     }
+
 }
