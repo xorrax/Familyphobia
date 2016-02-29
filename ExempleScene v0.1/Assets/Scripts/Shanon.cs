@@ -79,7 +79,10 @@ public class Shanon : NPC {
 
                 Camera thisCamera = Camera.main;
                 warpFade.transform.position = new Vector3(thisCamera.transform.position.x, thisCamera.transform.position.y, thisCamera.transform.position.z + 1);
-              //  StartCoroutine("loadSceneFadeOu");
+                
+                
+                
+                StartCoroutine("loadSceneFadeOut");
                 StopCoroutine("loadSceneFadeIn");
                 warp.LoadScene(newScene);
             }

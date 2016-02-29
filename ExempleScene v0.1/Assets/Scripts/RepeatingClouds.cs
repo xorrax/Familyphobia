@@ -18,13 +18,7 @@ public class RepeatingClouds : MonoBehaviour {
         startPosition = clouds[0].position.x - (width * 1);
         for (int i = 0; i < clouds.Count; i++) {
             clouds[i].position = new Vector2(startPosition + (width * i), 0);
-        }
-
-        
-
-
-
-        
+        }   
     }
 
     void FixedUpdate() {
