@@ -12,7 +12,6 @@ public class ChangeMesh : MonoBehaviour {
         meshCollider = GetComponent<MeshCollider>();
         pathfinding = GameObject.FindGameObjectWithTag("Player").GetComponent<Pathfinding>();
         grid = GetComponent<Grid>();
-        changeMesh();
     }
     public void changeMesh() {
         meshCollider.sharedMesh = newMesh;

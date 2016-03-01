@@ -38,7 +38,10 @@ public class Pathfinding : MonoBehaviour
     }
 
     public string getGridBackground() {
-        return grid.gameObject.name;
+        if (grid.gameObject.name != null) {
+            return grid.gameObject.name;
+        }
+        return null;
     }
 
     public Vector3 getTargetNodePosition() {

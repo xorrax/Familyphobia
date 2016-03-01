@@ -20,7 +20,7 @@ public class PlayAudio : MonoBehaviour {
 
     public void changeAudio(AudioClip newAudio, float time) {
         if (newAudio != audioSource.clip) {
-            object[] parms = new object[2]{newAudio, time};
+            object[] parms = new object[2] { newAudio, time };
             if (!coroutineRunning) {
                 volume = audioSource.volume;
             }
@@ -30,22 +30,21 @@ public class PlayAudio : MonoBehaviour {
 
     IEnumerator MusicFadeOut(object[] parms) {
         coroutineRunning = true;
-        while(audioSource.volume >= 0){
+        while (audioSource.volume >= 0) {
             audioSource.volume -= fadeValue;
 
             if (audioSource.volume <= 0) {
                 lastClip = audioSource.clip;
                 lastClipTime = audioSource.time;
 
-                audioSource.Stop();
-
                 currentClip = (AudioClip)parms[0];
 
                 audioSource.clip = currentClip;
+                audioSource.Play();
                 audioSource.time = (float)parms[1];
                 StartCoroutine("MusicFadeIn");
                 StopCoroutine("MusicFadeOut");
-                
+
             }
             yield return null;
         }

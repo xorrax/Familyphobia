@@ -8,13 +8,12 @@ public class DynamicMusic : MonoBehaviour {
     private PlayAudio playAudio;
     private Transform player;
 
-
-	void Start () {
+    void Start() {
         playAudio = GameObject.Find("Music").GetComponent<PlayAudio>();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
     }
 
-	void Update () {
+    void Update() {
         float distanceFromPlayer = Vector3.Distance(player.position, transform.position);
         if (distanceFromPlayer <= distance) {
             playAudio.changeAudio(newSong, 0);
@@ -22,5 +21,5 @@ public class DynamicMusic : MonoBehaviour {
         } else if (playAudio.getCurrentClip() == newSong) {
             playAudio.playLastClip();
         }
-	}
+    }
 }
