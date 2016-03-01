@@ -37,6 +37,10 @@ public class Pathfinding : MonoBehaviour
         grid = newBackground.GetComponent<Grid>();
     }
 
+    public string getGridBackground() {
+        return grid.gameObject.name;
+    }
+
     public Vector3 getTargetNodePosition() {
         Node node = grid.NodeFromWorldPoint(targetPosition);
         return node.position;
@@ -85,6 +89,7 @@ public class Pathfinding : MonoBehaviour
         anim.SetFloat("hSpeed", 0);
         anim.SetFloat("vSpeed", 0);
         anim.Play("Idle");
+        movement.Target = seeker.position;
         Target = seeker.position;
         moveQueue.Clear();
     }

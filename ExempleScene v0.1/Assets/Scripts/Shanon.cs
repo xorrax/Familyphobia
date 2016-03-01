@@ -43,9 +43,9 @@ public class Shanon : NPC {
                     alpha = fadeColor.a;
                     warpFade.GetComponent<SpriteRenderer>().sortingOrder = 1000;
                     warpFade.transform.localScale += new Vector3(30 * transform.localScale.x, 30 * transform.localScale.y, transform.localScale.z);
-                    
 
-                    StartCoroutine("loadSceneFadeIn");
+
+                    warp.LoadScene(newScene);
 
                 }
                
