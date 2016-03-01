@@ -6,8 +6,6 @@ public class RealLightMovement : MonoBehaviour {
     public bool lightToggleCheck = false;
     public float offSet;
     public GameObject Jack;
-    Movement movement;
-    //////public float speed;
 
     void realLightDirection() {
         if (Camera.main != null) {
