@@ -5,8 +5,10 @@ public class ShedCamera : CameraMovement {
     private Camera thisCamera;
     private Vector2 max;
     private Vector2 min;
-    private float cameraMove = 1.5f;
+    private float cameraMove = 1f;
+    public float cameraVelocity = 0.2f;
     private float cameraTrigger = 33f;
+    public float zoomOutSize = 7f;
     Vector3 bottomLeft;
     float height;
     float width;
@@ -28,6 +30,7 @@ public class ShedCamera : CameraMovement {
 
         min.x = bottomLeft.x + (width / 2);
         min.y = bottomLeft.y + (height / 2);
+        StartCoroutine("ZoomOut");
 
 
     }
@@ -41,6 +44,15 @@ public class ShedCamera : CameraMovement {
     }
 
     protected override void FixedUpdate() {
+        height = 2f * thisCamera.orthographicSize;
+        width = height * thisCamera.aspect;
+
+        max.x = ((bottomLeft.x + background.GetComponent<Renderer>().bounds.size.x) - (width / 2));
+        max.y = ((bottomLeft.y + background.GetComponent<Renderer>().bounds.size.y) - (height / 2));
+
+        min.x = bottomLeft.x + (width / 2);
+        min.y = bottomLeft.y + (height / 2);
+
         if (target.transform.position.x > cameraTrigger) {
             minOffset.x = thisCamera.transform.position.x - (width / 4);
             maxOffset.x = thisCamera.transform.position.x + (width / 4);
@@ -79,7 +91,7 @@ public class ShedCamera : CameraMovement {
         } 
         else {
             if (thisCamera.transform.position.x > min.x + cameraMove)
-                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x - 0.5f, thisCamera.transform.position.y, thisCamera.transform.position.z);
+                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x - cameraVelocity, thisCamera.transform.position.y, thisCamera.transform.position.z);
             else
                 thisCamera.transform.position = new Vector3(min.x + cameraMove, thisCamera.transform.position.y, thisCamera.transform.position.z);
         }
@@ -92,5 +104,14 @@ public class ShedCamera : CameraMovement {
 
             Debug.Log(thisCamera.name);
         }
+    }
+
+    IEnumerator ZoomOut(){
+        while (thisCamera.orthographicSize <= zoomOutSize) {
+            if(thisCamera.enabled)
+            thisCamera.orthographicSize += 0.01f; 
+            yield return 0;
+        }
+
     }
 }
