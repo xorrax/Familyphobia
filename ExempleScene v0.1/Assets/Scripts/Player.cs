@@ -35,6 +35,8 @@ public class Player : MonoBehaviour {
                 camera.GetComponent<CameraMovement>().target = GameObject.Find("Jack").GetComponent<Transform>();
                 camera.GetComponent<Camera>().enabled = false;
             }
+            GameObject loadingScreen = GameObject.Find("LoadingScreen");
+            loadingScreen.transform.GetChild(0).gameObject.SetActive(false);
             GameObject.Find(newRoom + "_Camera").GetComponent<Camera>().enabled = true;
             pathfinding.setGrid(GameObject.Find(newRoom + "_Background"));
             if (SharedVariables.OutFromDreamworld)
