@@ -143,6 +143,9 @@ public class RoomLighter : MonoBehaviour {
 
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
+            if (entranceLit == true) {
+                print("it works");
+            }
             changeRoomLightning();
         }
     }

@@ -4,10 +4,11 @@ using System.Collections;
 public class RealLightMovement : MonoBehaviour {
     public GameObject realLightSprite;
     public bool lightToggleCheck = false;
-    public float offSet;
+    float offSet = 3.5f;
+    float transZFader = -6.7f;
     public GameObject Jack;
 
-    void realLightDirection() {
+    void realLightDirection(){
         if (Camera.main != null) {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Quaternion rotate = Quaternion.LookRotation(transform.position - mousePosition, Vector3.up);
@@ -30,17 +31,29 @@ public class RealLightMovement : MonoBehaviour {
         }
     }
 
+    void incrementTransZFader() {
+        if (transZFader >= -6.7f && transZFader < -3.8f) {
+            transZFader = transZFader + 0.02f;
+        }
+    }
+
+    void deincrementTransZFader() {
+        transZFader = -6.7f;
+    }
+
     void realLightDepth() {
         if (Camera.main != null) {
             Vector3 mousePosition = (Camera.main.ScreenToWorldPoint(Input.mousePosition));
             if (mousePosition.x > Jack.transform.position.x + offSet || mousePosition.x < Jack.transform.position.x - offSet) {
-                transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -3.8f + Mathf.Abs(mousePosition.x));
+                incrementTransZFader();
+                transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, transZFader + Mathf.Abs(mousePosition.x));
                 if (transform.position.z >= -3.8f){
                     transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -3.8f);
                 }
             }
-            else if (mousePosition.x < Jack.transform.position.x + offSet || mousePosition.x > -Jack.transform.position.x - offSet) {
-                transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -6.7f);
+            else if (mousePosition.x > Jack.transform.position.x + offSet || mousePosition.x < -Jack.transform.position.x - offSet) {
+                deincrementTransZFader();
+                transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, transZFader);
                 if (transform.position.z <= -6.7){
                     transform.position = new Vector3(Jack.transform.position.x, Jack.transform.position.y, -6.7f);
                 }
