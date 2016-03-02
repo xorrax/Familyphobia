@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class Object : MonoBehaviour{
+public class Object : MonoBehaviour
+{
 
     public Sprite resultSprite;
     public GameObject combinationObject;
@@ -11,31 +13,28 @@ public class Object : MonoBehaviour{
     public string comboName;
     public string goalName;
     public float clickDistance;
-
+    public bool locked;
     //Sound
     public AudioClip lightSound;
     public AudioClip mediumSound;
     public AudioClip heavySound;
-
-    private AudioClip mySound;
     //------
 
     private Color mouseOverColor = Color.green;
     private Color originalColor;
     private bool myDragging = false;
     private bool otherDragging = false;
-    private bool canCombine = false;
     private bool hasCombined = false;
     private Vector3 goalPathfindingPos = Vector3.zero;
     private Vector2 myPos = new Vector2();
     private GameObject player;
-    private GameObject otherComboObject;
-    private string invName;
     private bool clicked = false;
     private bool mouseOutside = true;
     private bool onGoal = false;
+    private bool scaled = false;
     private float goalDistance = 0f;
-    private enum invState{
+    private enum invState
+    {
         DRAGGING,  //..
         INVENTORY, //I inventory
         SLEEPING, //Innan man gjort något med objektet
@@ -46,7 +45,8 @@ public class Object : MonoBehaviour{
 
     private float myDistance;
 
-	void Start () {
+    void Start()
+    {
         if (comboName != string.Empty)
             combinationObject = GameObject.Find(comboName);
 
@@ -55,31 +55,35 @@ public class Object : MonoBehaviour{
 
         originalColor = this.gameObject.GetComponent<Renderer>().material.color;
 
-        if (gameObject.tag != "ObjectiveTrigger")
-            canCombine = true;
-
         if (combinationObject == null)
             hasCombined = true;
 
         player = GameObject.FindGameObjectWithTag("Player");
 
-        if (gameObject.GetComponent<Rigidbody2D>().mass == 1)
-            mySound = lightSound;
-        else if(gameObject.GetComponent<Rigidbody2D>().mass == 2)
-            mySound = mediumSound;
-        else if(gameObject.GetComponent<Rigidbody2D>().mass == 3)
-            mySound = heavySound;
+        if (gameObject.GetComponent<Rigidbody>().mass == 1)
+            gameObject.GetComponent<AudioSource>().clip = lightSound;
+        else if (gameObject.GetComponent<Rigidbody>().mass == 2)
+            gameObject.GetComponent<AudioSource>().clip = mediumSound;
+        else if (gameObject.GetComponent<Rigidbody>().mass == 3)
+            gameObject.GetComponent<AudioSource>().clip = heavySound;
 
-        gameObject.GetComponent<AudioSource>().clip = mySound;
+        //if (goalObject != null)
+        //    goalObject.SendMessage("SetGoalPathfindingPos", pathfindingPos);
+    }
 
-        if(goalObject != null)
-            goalObject.SendMessage("SetGoalPathfindingPos", pathfindingPos);
-	}
-	
-	void Update () {
+    void OnLevelWasLoaded()
+    {
+        if (SceneManager.GetActiveScene().name == "Dreamworld_Level01" && tag == "ItemWarp")
+        {
+            if (goalName != string.Empty)
+                goalObject = GameObject.Find(goalName);
+            if (comboName != string.Empty)
+                combinationObject = GameObject.Find(comboName);
+        }
+    }
 
-        this.gameObject.GetComponent<Rigidbody2D>().WakeUp();
-
+    void Update()
+    {
         if (combinationObject != null)
         {
             if (combinationObject.activeSelf)
@@ -89,18 +93,24 @@ public class Object : MonoBehaviour{
             }
         }
 
-        if (clicked && Vector3.Distance(player.transform.position, transform.position) <= clickDistance)
+        if (clicked && Vector3.Distance(player.transform.position, transform.position) <= clickDistance && !locked)
         {
+            if (scaled)
+            {
+                scaled = false;
+                gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+            }
+
             Inventory.invInstance.SendMessage("AddItem", this.gameObject);
             myState = invState.INVENTORY;
             clicked = false;
-            Debug.Log(name + " picked up");
+            
         }
 
         if (onGoal && Vector3.Distance(player.transform.position, goalObject.transform.position) <= goalDistance)
         {
             onGoal = false;
-            if (combinationObject == null && otherComboObject == null)
+            if (combinationObject == null)
             {
                 if (!Input.GetMouseButton(0))
                 {
@@ -126,22 +136,25 @@ public class Object : MonoBehaviour{
         {
             onGoal = false;
 
-            if(mouseOutside)
+            if (mouseOutside)
                 clicked = false;
         }
-	}
+    }
 
-    void FixedUpdate(){
-        if (myDragging && myState != invState.SLEEPING){
+    void FixedUpdate()
+    {
+        if (myDragging && myState != invState.SLEEPING)
+        {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Vector2 rayPoint = ray.GetPoint(myDistance);
             transform.position = rayPoint;
         }
     }
 
-    void OnTriggerStay2D(Collider2D col){
+    void OnTriggerStay(Collider col)
+    {
 
-        if (combinationObject != null && combinationObject.gameObject.activeSelf && col.gameObject.name == combinationObject.name && canCombine
+        if (combinationObject != null && combinationObject.gameObject.activeSelf && col.gameObject.name == combinationObject.name && !locked
             && myState != invState.SLEEPING && otherState != invState.SLEEPING)
         {
             myState = invState.COMBINATION;
@@ -164,17 +177,18 @@ public class Object : MonoBehaviour{
 
             }
         }
-        else if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name && canCombine)
+        else if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name && !locked)
         {
             if (Vector3.Distance(transform.position, col.transform.position) <= goalDistance)
             {
-                if (combinationObject == null && otherComboObject == null)
+                if (combinationObject == null)
                 {
                     if (!Input.GetMouseButton(0))
                     {
                         myState = invState.COMBINATION;
                         Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
                         Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                        player.SendMessage("CanWalk", true);
                         this.gameObject.SetActive(false);
                     }
                 }
@@ -185,6 +199,7 @@ public class Object : MonoBehaviour{
                         myState = invState.COMBINATION;
                         Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
                         Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                        player.SendMessage("CanWalk", true);
                         this.gameObject.SetActive(false);
                     }
                 }
@@ -197,21 +212,26 @@ public class Object : MonoBehaviour{
         }
 
 
-        if (col.name == invName && myState != invState.INVENTORY){
+        if (col.name == "Inventory" && myState != invState.INVENTORY)
+        {
             myState = invState.INVENTORY;
         }
     }
 
-    void OnTriggerExit2D(Collider2D col){
-        if (col.name == Inventory.invInstance.gameObject.name){
+    void OnTriggerExit(Collider col)
+    {
+        if (col.name == "Inventory")
+        {
             Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
             Inventory.invInstance.SendMessage("SetPositions");
             myState = invState.DRAGGING;
+            Debug.Log(gameObject.name + " exit inv");
         }
     }
 
 
-    void SetGoalPathfindingPos(Vector3 pos){
+    void SetGoalPathfindingPos(Vector3 pos)
+    {
         goalPathfindingPos = pos;
     }
 
@@ -220,52 +240,71 @@ public class Object : MonoBehaviour{
         goalDistance = distance;
     }
 
-    void OtherState(invState value){
+    void OtherState(invState value)
+    {
         otherState = value;
     }
-    void OtherDragging(bool dragging){
+    void OtherDragging(bool dragging)
+    {
         otherDragging = dragging;
     }
 
-    void OtherCombObject(GameObject otherObject){
-        otherComboObject = otherObject;
-    }
-    void SetPosition(Vector2 pos){
+    void SetPosition(Vector2 pos)
+    {
         myPos = pos;
     }
 
-    void CanCombine(bool value){
-        canCombine = value;
+    void Locked(bool value)
+    {
+        locked = value;
     }
 
-    void OnMouseEnter(){
-        this.gameObject.GetComponent<Renderer>().material.color = mouseOverColor;
+    void OnMouseEnter()
+    {
         mouseOutside = false;
-    }
-
-    void OnMouseExit(){
-        this.gameObject.GetComponent<Renderer>().material.color = originalColor;
-        mouseOutside = true;
-    }
-
-    void OnMouseDown(){
-        myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        myDragging = true;
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
-        player.SendMessage("HoldingItem", true);
-    }
-
-    void OnMouseUp(){
-        myDragging = false;
 
         if (myState == invState.SLEEPING)
         {
+            scaled = true;
+            gameObject.transform.localScale = new Vector3(1.3f, 1.3f, 1);
+        }
+    }
+
+    void OnMouseExit()
+    {
+        mouseOutside = true;
+        if (myState == invState.SLEEPING && scaled)
+        {
+            scaled = false;
+            gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+        }
+    }
+
+    void OnMouseDown()
+    {
+        myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
+        myDragging = true;
+        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
+        player.SendMessage("CanWalk", false);
+    }
+
+    void OnMouseUp()
+    {
+        myDragging = false;
+
+        if (myState == invState.SLEEPING && !locked)
+        {
             if (Vector3.Distance(player.transform.position, gameObject.transform.position) <= clickDistance)
             {
+                if (scaled)
+                {
+                    scaled = false;
+                    gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                }
+
                 Inventory.invInstance.SendMessage("AddItem", this.gameObject);
                 myState = invState.INVENTORY;
                 gameObject.GetComponent<AudioSource>().Play();
-                Debug.Log(name + " picked up");
             }
             else
             {
@@ -273,25 +312,39 @@ public class Object : MonoBehaviour{
                 player.SendMessage("SetTargetPos", pathfindingPos);
             }
         }
-        else if(myState == invState.COMBINATION){
+        else if (myState == invState.COMBINATION)
+        {
             StartCoroutine(wait());
         }
-        else if(myState == invState.INVENTORY){
+        else if (myState == invState.INVENTORY)
+        {
             Inventory.invInstance.SendMessage("RemoveItem", gameObject);
             Inventory.invInstance.SendMessage("AddItem", this.gameObject);
             this.gameObject.transform.position = myPos;
         }
-        else if (myState != invState.INVENTORY && myState != invState.COMBINATION){
+        else if (myState == invState.DRAGGING)
+        {
             Inventory.invInstance.SendMessage("RemoveItem", gameObject);
             Inventory.invInstance.SendMessage("AddItem", this.gameObject);
             myState = invState.INVENTORY;
         }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
 
-        player.SendMessage("HoldingItem", false);
+        player.SendMessage("CanWalk", true);
         clicked = true;
     }
 
+    void Warp(string level)
+    {
+        if (level == "Dreamworld_Level01")
+        {
+            if (goalObject == null)
+                goalObject = GameObject.Find(goalName);
+
+            if (combinationObject == null)
+                combinationObject = GameObject.Find(comboName);
+        }
+    }
     IEnumerator wait()
     {
         yield return 0;
