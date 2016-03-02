@@ -18,7 +18,7 @@ public class MobileToggle : MonoBehaviour {
     void togglePhone() {
         isToggled = !isToggled;
         transform.GetChild(1).gameObject.SetActive(isToggled);
-        GameObject.FindGameObjectWithTag("Player").GetComponent<Pathfinding>().setIsActive(isToggled);
+        GameObject.FindGameObjectWithTag("Player").GetComponent<Pathfinding>().setIsActive(!isToggled);
     }
 
 
