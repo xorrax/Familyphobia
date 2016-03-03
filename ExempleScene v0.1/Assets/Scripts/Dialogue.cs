@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
-public enum dialogueProperty { start, player, NPC, requirement, getDialogueItem,end }
+public enum dialogueProperty { start, player, NPC, requirement, getDialogueItem, warp, empty, end }
 
-//[ExecuteInEditMode]
+[ExecuteInEditMode]
 public class Dialogue : MonoBehaviour {
 
     public List<QAC> qac = new List<QAC>();

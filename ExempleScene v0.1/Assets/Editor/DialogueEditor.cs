@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+//using System;
 using System.IO;
 
 
@@ -14,27 +14,30 @@ public class DialogueEditor : EditorWindow {
     public List<int> stringsToAttach = new List<int>();
     public List<int> attachedWindows = new List<int>();
     public List<int> attachedStrings = new List<int>();
-    
+
     public float clickTimer;
     public string newName;
     public int clicks;
 
     Vector2 positonOffset = new Vector2(0, 0);
+    Rect editorPanel;
     float lx = 0;
     float ly = 0;
 
-    string save = "Test/filename";
+    string save = "Dialogues/filename";
     GameObject load;
 
     [MenuItem("Window/DilogueEditor")]
     static void ShowEditor() {
 
         DialogueEditor editor = EditorWindow.GetWindow<DialogueEditor>();
+        /*DialogueEditor editor = (DialogueEditor)EditorWindow.GetWindow(typeof(DialogueEditor));
+        editor.Show();*/
 
     }
 
     void Awake() {
-        this.position = new Rect(0, 0, 500, 500);
+        editorPanel = new Rect(0, 0, 0, 0);
         load = null;
         nodes.Add(new StartNode(this));
         nodes.Add(new EndNode(this));
@@ -62,12 +65,17 @@ public class DialogueEditor : EditorWindow {
         GUILayout.TextArea(temp2);
         GUILayout.TextArea(nodes.Count.ToString());*/
 
-        if (clickTimer <= 10) {
+        if (editorPanel != new Rect(0, 0, 180, position.height)) {
+            editorPanel = new Rect(0, 0, 180, position.height);
+        }
+
+        gradient(new Rect(Vector2.zero, position.size), new Color(0.7f, 0.7f, 0.7f, 1), new Color(0.4f, 0.4f, 0.4f, 1));
+
+        if (clickTimer <= 6 && clicks >= 1) {
             clickTimer += 0.05f;
         } else {
             clicks = 0;
             clickTimer = 0;
-            Debug.Log("Tick");
         }
 
         if (Event.current.button == 2) {
@@ -87,15 +95,11 @@ public class DialogueEditor : EditorWindow {
 
         // Connects nodes
         if (windowsToAttach.Count == 2) {
-
             attachedWindows.Add(windowsToAttach[0]);
             attachedWindows.Add(windowsToAttach[1]);
-
             nodes[windowsToAttach[0]].next[stringsToAttach[0]] = windowsToAttach[1];
-
             attachedStrings.Add(stringsToAttach[0]);
             attachedStrings.Add(stringsToAttach[1]);
-
             windowsToAttach = new List<int>();
             stringsToAttach = new List<int>();
         }
@@ -108,42 +112,29 @@ public class DialogueEditor : EditorWindow {
             }
         }
 
-        // Everything will be saved in a separet class whitch will be saved inside a prefab
-        if (GUILayout.Button("Save")) {
-            saveDialogue();
-        }
-        save = GUILayout.TextArea(save);
-
-        if (GUILayout.Button("Load")) {
-            loadDialogue();
-        }
-        load = EditorGUILayout.ObjectField(load, typeof(GameObject), true) as GameObject;
-
-        if (GUILayout.Button("Create NPC")) {
-            nodes.Add(new NPCNode(this));
-        }
-        
-        if (GUILayout.Button("Create Player")) {
-            nodes.Add(new PlayerNode(this));
-        }
-
-        if (GUILayout.Button("Create Requirement")) {
-            nodes.Add(new RequirementNode(this));
-        }
-        if (GUILayout.Button("Create Item")) {
-            nodes.Add(new GiveItemNode(this));
-        }
+        //Test connections
+        //for (int i = 0; i < nodes.Count; i++) {
+        //    for (int j = 0; j < nodes[i].next.Count; j++) {
+        //        if (nodes[i].next[j] >= 0) {
+        //            DrawNodeCurve(nodes[i].outputRect(j), nodes[nodes[i].next[j]].inputRect());
+        //            Repaint();
+        //        }
+        //    }
+        //}
 
         BeginWindows();
         for (int i = 0; i < nodes.Count; i++) {
             nodes[i].rect = GUI.Window(i, nodes[i].rect, nodes[i].DrawNodeWindow, nodes[i].name);
         }
+        editorPanel = GUI.Window(100, editorPanel, editorPanelOptions, "");
         EndWindows();
 
         Repaint();
         lx = Event.current.mousePosition.x;
         ly = Event.current.mousePosition.y;
     }
+
+    // Draw connections
     void DrawNodeCurve(Rect start, Rect end) {
         Vector3 startPos = new Vector3(start.x + start.width, start.y + start.height / 2, 0);
         Vector3 endPos = new Vector3(end.x, end.y + end.height / 2, 0);
@@ -157,8 +148,39 @@ public class DialogueEditor : EditorWindow {
         Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.red, null, 1);
     }
 
+    void editorPanelOptions(int id) {
+        // Everything will be saved in a separet class whitch will be saved inside a prefab
+        if (GUILayout.Button("Save")) {
+            saveDialogue();
+        }
+        save = GUILayout.TextArea(save);
+
+        if (GUILayout.Button("Load")) {
+            loadDialogue();
+        }
+        load = EditorGUILayout.ObjectField(load, typeof(GameObject), true) as GameObject;
+        GUILayout.Label("----------------------------------------");
+        if (GUILayout.Button("Create NPC")) {
+            nodes.Add(new NPCNode(this));
+        }
+
+        if (GUILayout.Button("Create Player")) {
+            nodes.Add(new PlayerNode(this));
+        }
+
+        if (GUILayout.Button("Create Requirement")) {
+            nodes.Add(new RequirementNode(this));
+        }
+        if (GUILayout.Button("Create Item")) {
+            nodes.Add(new GiveItemNode(this));
+        }
+        if (GUILayout.Button("Create Warp")) {
+            nodes.Add(new WarpNode(this));
+        }
+    }
+
     void loadDialogue() {
-        if(load != null){
+        if (load != null) {
             for (int i = nodes.Count - 1; i >= 0; i--) {
                 nodes.RemoveAt(i);
                 Debug.Log(nodes.Count);
@@ -166,7 +188,7 @@ public class DialogueEditor : EditorWindow {
             Dialogue d = load.GetComponent<Dialogue>();
             attachedWindows = d.attachedWindows;
             attachedStrings = d.attachedStrings;
-            for (int i = 0; i < d.qac.Count; i++ ) {
+            for (int i = 0; i < d.qac.Count; i++) {
                 if (d.qac[i].type == dialogueProperty.start) {
                     nodes.Add(new StartNode(this));
                 } else if (d.qac[i].type == dialogueProperty.end) {
@@ -179,9 +201,15 @@ public class DialogueEditor : EditorWindow {
                     nodes.Add(new RequirementNode(this));
                 } else if (d.qac[i].type == dialogueProperty.getDialogueItem) {
                     nodes.Add(new GiveItemNode(this));
+                } else if (d.qac[i].type == dialogueProperty.getDialogueItem) {
+                    nodes.Add(new WarpNode(this));
+                } else if (d.qac[i].type == dialogueProperty.empty) {
+                    nodes.Add(new Empty());
                 }
+
                 nodes[i].type = d.qac[i].type;
                 nodes[i].texts = d.qac[i].texts;
+                nodes[i].name = d.qac[i].name;
                 nodes[i].next = d.qac[i].next;
                 nodes[i].voices = d.qac[i].voices;
                 nodes[i].dialogueItem = d.qac[i].dialogueItem;
@@ -192,6 +220,7 @@ public class DialogueEditor : EditorWindow {
             load = null;
         }
     }
+
     void saveDialogue() {
         GameObject go = new GameObject();
         Dialogue d = go.AddComponent<Dialogue>();
@@ -203,6 +232,7 @@ public class DialogueEditor : EditorWindow {
             d.qac[i].id = i;
             d.qac[i].type = nodes[i].type;
             d.qac[i].texts = nodes[i].texts;
+            d.qac[i].name = nodes[i].name;
             d.qac[i].next = nodes[i].next;
             d.qac[i].voices = nodes[i].voices;
             d.qac[i].dialogueItem = nodes[i].dialogueItem;
@@ -215,8 +245,17 @@ public class DialogueEditor : EditorWindow {
         PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ReplaceNameBased);
     }
 
+    public void gradient(Rect r, Color a, Color b) {
+        for (int i = 0; i < r.height; i++) {
+            EditorGUI.DrawRect(new Rect(r.x, r.y + i, r.width, 1), Color.Lerp(a, b, (float)i / (float)r.height));
+        }
+
+    }
 }
 
+
+
+// NODES--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // OBS! Skapa aldrig denna bas klass
 public class DialogueNode {
 
@@ -238,7 +277,6 @@ public class DialogueNode {
         outputs = new List<Rect>();
         voices = new List<AudioClip>();
         next = new List<int>();
-        
 
         rect = new Rect(10, 300, 200, 150);
         input = new Rect(0, 18, 30, 18);
@@ -246,14 +284,13 @@ public class DialogueNode {
     }
 
     public virtual void DrawNodeWindow(int id) {
-        
-        if (GUI.Button(new Rect(rect.width / 4, 0, rect.width / 2, 16), "DoubleClickMe")) {
-            script.clicks++;
-            if (script.clicks > 1) {
-                Debug.Log("Double click");
-                script.clicks = 0;
-            }
-        }
+
+        //script.gradient(new Rect(0.5f, 17 - 0.5f, rect.width - 0.5f, rect.height - 0.5f), new Color(0.7f, 0.7f, 0.7f, 1), new Color(0.4f, 0.4f, 0.4f, 1));
+
+        var centeredStyle = GUI.skin.GetStyle("TextField");
+        centeredStyle.alignment = TextAnchor.LowerCenter;
+        name = GUI.TextField(new Rect(rect.width / 4, 0, rect.width / 2, 16), name, centeredStyle);
+        centeredStyle.alignment = TextAnchor.LowerLeft;
 
         if (GUI.Button(new Rect(rect.width - 18, 0, 18, 16), "x")) {
             for (int i = 0; i < next.Count; i++) {
@@ -263,6 +300,10 @@ public class DialogueNode {
             script.nodes[id] = new Empty();
         }
 
+        //if (GUI.Button(new Rect(0, 0, 18, 16), "ツ")) {
+        //    script.nodes.Add(copyNode(script.nodes[id]));
+        //}
+
         if (GUI.Button(input, "In")) {
             if (script.windowsToAttach.Count == 1) {
                 createLink(id, 0);
@@ -271,6 +312,10 @@ public class DialogueNode {
                 removeInputLinks(id, 0);
             }
         }
+    }
+
+    DialogueNode copyNode(DialogueNode original) {
+        return original;
     }
 
     public Rect inputRect() {
@@ -317,16 +362,15 @@ public class DialogueNode {
     }
 }
 
-
 public class NPCNode : DialogueNode {
     Vector2 scroll;
     public NPCNode(DialogueEditor script) {
-        rect = new Rect(50, 300, 200, 100);
+        rect = new Rect(300, 300, 200, 150);
         outputs.Add(new Rect(170, 18, 30, 18));
         texts.Add("");
         voices.Add(new AudioClip());
         name = "NPC";
-        next.Add(new int());
+        next.Add(-1);
 
         this.script = script;
         scroll = new Vector2(0, 0);
@@ -357,10 +401,10 @@ public class NPCNode : DialogueNode {
 
 public class PlayerNode : DialogueNode {
     public PlayerNode(DialogueEditor script) {
-        rect = new Rect(50, 300, 200, 100);
+        rect = new Rect(300, 300, 200, 100);
         name = "Player";
         type = dialogueProperty.player;
-        next.Add(new int());
+        next.Add(-1);
 
         this.script = script;
         texts.Add("");
@@ -411,7 +455,7 @@ public class PlayerNode : DialogueNode {
 public class RequirementNode : DialogueNode {
 
     public RequirementNode(DialogueEditor script) {
-        rect = new Rect(50, 300, 200, 80);
+        rect = new Rect(300, 300, 200, 80);
         outputs.Add(new Rect(165, 27, 35, 18));
         outputs.Add(new Rect(165, 45, 35, 18));
         type = dialogueProperty.requirement;
@@ -451,13 +495,13 @@ public class RequirementNode : DialogueNode {
 
 public class GiveItemNode : DialogueNode {
     public GiveItemNode(DialogueEditor script) {
-        rect = new Rect(50, 300, 200, 70);
+        rect = new Rect(300, 300, 200, 70);
         outputs.Add(new Rect(170, 18, 30, 18));
         type = dialogueProperty.getDialogueItem;
         texts.Add("");
         voices.Add(new AudioClip());
         name = "Give item";
-        next.Add(new int());
+        next.Add(-1);
 
         this.script = script;
     }
@@ -470,6 +514,7 @@ public class GiveItemNode : DialogueNode {
             if (script.windowsToAttach.Count < 1) {
                 createLink(id, 0);
             }
+
             if (Event.current.button == 1) {
                 removeOutputLinks(id, 0);
             }
@@ -481,10 +526,28 @@ public class GiveItemNode : DialogueNode {
     }
 }
 
+public class WarpNode : DialogueNode {
+
+    public WarpNode(DialogueEditor script) {
+        rect = new Rect(400, Screen.height / 2, 80, 40);
+        input = new Rect(0, 18, 80, 22);
+        type = dialogueProperty.warp;
+        name = "Warp";
+        this.script = script;
+    }
+
+    public override void DrawNodeWindow(int id) {
+        base.DrawNodeWindow(id);
+        GUILayout.Label("");
+
+        GUI.DragWindow();
+    }
+}
+
 public class StartNode : DialogueNode {
 
     public StartNode(DialogueEditor script) {
-        rect = new Rect(0, Screen.height / 2, 80, 40);
+        rect = new Rect(300, Screen.height / 2, 80, 40);
         outputs.Add(new Rect(0, 18, 80, 22));
         type = dialogueProperty.start;
         name = "Start";
@@ -492,7 +555,7 @@ public class StartNode : DialogueNode {
         voices.Add(new AudioClip());
 
         this.script = script;
-        next.Add(new int());
+        next.Add(-1);
     }
 
     public override void DrawNodeWindow(int id) {
@@ -509,7 +572,7 @@ public class StartNode : DialogueNode {
 public class EndNode : DialogueNode {
 
     public EndNode(DialogueEditor script) {
-        rect = new Rect(Screen.width - 80, Screen.height / 2, 80, 40);
+        rect = new Rect(400, Screen.height / 2, 80, 40);
         input = new Rect(0, 18, 80, 22);
         outputs.Add(new Rect(0, 18, 80, 22));
         texts.Add("");
@@ -517,7 +580,7 @@ public class EndNode : DialogueNode {
         type = dialogueProperty.end;
         name = "End";
         this.script = script;
-        next.Add(new int());
+        next.Add(-1);
     }
 
     public override void DrawNodeWindow(int id) {
@@ -535,6 +598,7 @@ public class Empty : DialogueNode {
         rect = new Rect(-20, 0, 0, 0);
         input = new Rect(0, 0, 0, 0);
         outputs.Add(new Rect(0, 0, 0, 0));
+        type = dialogueProperty.empty;
         name = "";
 
     }
