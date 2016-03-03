@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class Nail : MonoBehaviour {
@@ -33,6 +34,12 @@ public class Nail : MonoBehaviour {
         myState = nailStates.empty;
         nailSprite = gameObject.GetComponent<SpriteRenderer>().sprite;
         player = GameObject.FindGameObjectWithTag("Player");
+        GameObject tempObject = GameObject.Find("EmptyFrame");
+        tempObject.SendMessage("SetGoalDistance", goalDistance);
+        tempObject.SendMessage("SetGoalPathfindingPos", pathfindingPos);
+        tempObject = GameObject.Find("Bouquet");
+        tempObject.SendMessage("SetGoalDistance", goalDistance);
+        tempObject.SendMessage("SetGoalPathfindingPos", pathfindingPos);
     }
 
     void FixedUpdate()
@@ -64,6 +71,7 @@ public class Nail : MonoBehaviour {
                     {
                         if(colName == "EmptyFrame")
                         {
+                            Debug.Log("emptyframe, update");
                             gameObject.GetComponent<SpriteRenderer>().sprite = nailHasFrame;
                             myState = nailStates.hasFrame;
                         }
@@ -122,67 +130,87 @@ public class Nail : MonoBehaviour {
         gotFlowers = true;
     }
 
-    void OnTriggerStay2D(Collider2D col)
+    void OnTriggerStay(Collider col)
     {
-        if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
+        if (!Input.GetMouseButton(0))
         {
-            switch (myState)
+            if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
             {
-                case nailStates.empty:
-                    {
-                        if (col.name == "EmptyFrame")
+                switch (myState)
+                {
+                    case nailStates.empty:
                         {
-                            gameObject.GetComponent<SpriteRenderer>().sprite = nailHasFrame;
-                            myState = nailStates.hasFrame;
+                            if (col.name == "EmptyFrame")
+                            {
+                                Debug.Log("emptyframe, col");
+                                gameObject.GetComponent<SpriteRenderer>().sprite = nailHasFrame;
+                                myState = nailStates.hasFrame;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case nailStates.hasFrame:
-                    {
-                        if (col.name == "MotherPicture")
+                    case nailStates.hasFrame:
                         {
-                            col.gameObject.SetActive(false);
-                            gameObject.GetComponent<SpriteRenderer>().sprite = nailHasMotherPicture;
-                            myState = nailStates.hasPicture;
-                        }
-                        else if (col.name == "Bouquet")
-                        {
-                            gameObject.GetComponent<SpriteRenderer>().sprite = nailUglyPicture;
-                            myState = nailStates.uglyPicture;
-                            Inventory.invInstance.SendMessage("AddItem", col.gameObject);
-                            Inventory.invInstance.SendMessage("SetPositions");
-                        }
-                        break;
-                    }
-                case nailStates.hasPicture:
-                    {
-                        if(col.name == "Bouquet")
-                        {
-                            if (gotFlowers)
+                            if (col.name == "MotherPicture")
                             {
                                 col.gameObject.SetActive(false);
-                                gameObject.GetComponent<SpriteRenderer>().sprite = nailSprite;
-                                myState = nailStates.hasBouquet;
-                                goodPicture.SetActive(true);
-                                goodPicture.transform.position = gameObject.transform.position;
-
-                                if (col.gameObject.activeSelf)
-                                    col.SendMessage("RemoveBouquet");
+                                gameObject.GetComponent<SpriteRenderer>().sprite = nailHasMotherPicture;
+                                myState = nailStates.hasPicture;
                             }
-                            else
+                            else if (col.name == "Bouquet")
                             {
                                 gameObject.GetComponent<SpriteRenderer>().sprite = nailUglyPicture;
                                 myState = nailStates.uglyPicture;
+                                Inventory.invInstance.SendMessage("AddItem", col.gameObject);
+                                Inventory.invInstance.SendMessage("SetPositions");
                             }
+                            break;
                         }
-                        break;
-                    }
+                    case nailStates.hasPicture:
+                        {
+                            if (col.name == "Bouquet")
+                            {
+                                if (gotFlowers)
+                                {
+                                    col.gameObject.SetActive(false);
+                                    gameObject.GetComponent<SpriteRenderer>().sprite = nailSprite;
+                                    myState = nailStates.hasBouquet;
+                                    goodPicture.SetActive(true);
+                                    goodPicture.transform.position = gameObject.transform.position;
+
+                                    if (col.gameObject.activeSelf)
+                                        col.SendMessage("RemoveBouquet");
+
+                                    Debug.Log("swag");
+                                }
+                                else
+                                {
+                                    gameObject.GetComponent<SpriteRenderer>().sprite = nailUglyPicture;
+                                    myState = nailStates.uglyPicture;
+                                }
+                            }
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                colName = col.name;
+                onGoal = true;
+                player.SendMessage("SetTargetPos", pathfindingPos);
             }
         }
-        else
+    }
+
+    void OnLevelWasLoaded()
+    {
+        if (SceneManager.GetActiveScene().name == "Dreamworld_Level01")
         {
-            colName = col.name;
-            onGoal = true;
+            GameObject tempObject = GameObject.Find("MotherPicture");
+            if (tempObject != null)
+            {
+                tempObject.SendMessage("SetGoalDistance", goalDistance);
+                tempObject.SendMessage("SetGoalPathfindingPos", pathfindingPos);
+            }
         }
     }
 }

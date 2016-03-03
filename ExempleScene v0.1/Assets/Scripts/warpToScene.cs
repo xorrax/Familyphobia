@@ -11,6 +11,8 @@ public class warpToScene : MonoBehaviour {
     public bool outFromDreamWorld;
 
     public void LoadScene(string level) {
+        GameObject loadingScreen = GameObject.Find("LoadingScreen");
+        loadingScreen.transform.GetChild(0).gameObject.SetActive(true);
         SharedVariables.NewRoom = spawnRoom;
         SharedVariables.OutFromDreamworld = outFromDreamWorld;
         Player player = GameObject.Find("Jack").GetComponent<Player>();

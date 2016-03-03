@@ -7,10 +7,11 @@ public class Bouquet : MonoBehaviour {
     List<GameObject> flowerList = new List<GameObject>();
 
     public GameObject goalObject;
-    public float goalDistance;
-    public Vector3 pathfindingPos;
     public string goalName;
 
+
+    private float goalDistance;
+    private Vector3 goalPathfindingPos;
     private Color mouseOverColor = Color.green;
     private Color originalColor;
 
@@ -49,12 +50,10 @@ public class Bouquet : MonoBehaviour {
 	}
 	
 	void Update () {
-
-        this.gameObject.GetComponent<Rigidbody2D>().WakeUp();
-
         if (onGoal && Vector3.Distance(player.transform.position, goalObject.transform.position) < goalDistance)
         {
-            goalObject.SendMessage("Bouquet", gameObject);
+            if(flowerList.Count < 3)
+                Inventory.invInstance.SendMessage("SetPositions");
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -69,26 +68,26 @@ public class Bouquet : MonoBehaviour {
             Vector2 rayPoint = ray.GetPoint(myDistance);
             transform.position = rayPoint;
         }
-        if (flowerList.Count == 4 && !sentFlowerAmount)
+        if (flowerList.Count == 3 && !sentFlowerAmount)
         {
             sentFlowerAmount = true;
             goalObject.SendMessage("GotFlowers");
         }
     }
 
-    void OnTriggerStay2D(Collider2D col){
+    void OnTriggerStay(Collider col){
         if (!Input.GetMouseButton(0) && goalObject != null && col.gameObject.name == goalObject.name && canCombine)
         {
             if (Vector3.Distance(player.transform.position, transform.position) < goalDistance)
             {
                 myState = invState.COMBINATION;
 
-                if (flowerList.Count < 4)
+                if (flowerList.Count < 3)
                     Inventory.invInstance.SendMessage("SetPositions");
             }
             else
             {
-                player.SendMessage("SetTargetPos", pathfindingPos);
+                player.SendMessage("SetTargetPos", goalPathfindingPos);
                 onGoal = true;
             }
         }
@@ -100,9 +99,8 @@ public class Bouquet : MonoBehaviour {
         }
     }
 
-    void OnTriggerExit2D(Collider2D col)
+    void OnTriggerExit(Collider col)
     {
-        Debug.Log(col.name + " exit inv");
         if (col.name == "Inventory")
         {
             Debug.Log("exiting inv");
@@ -119,6 +117,16 @@ public class Bouquet : MonoBehaviour {
         canCombine = true;
     }
 
+    void SetGoalDistance(float dist)
+    {
+        goalDistance = dist;
+    }
+
+    void SetGoalPathfindingPos(Vector3 pos)
+    {
+        goalPathfindingPos = pos;
+    }
+
     void OnMouseEnter(){
         this.gameObject.GetComponent<Renderer>().material.color = mouseOverColor;
     }
@@ -131,7 +139,7 @@ public class Bouquet : MonoBehaviour {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
         myDragging = true;
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
-        player.SendMessage("HoldingItem", true);
+        player.SendMessage("CanWalk", false);
     }
 
     void OnMouseUp(){
@@ -140,7 +148,7 @@ public class Bouquet : MonoBehaviour {
         if(myState == invState.INVENTORY){
             this.gameObject.transform.position = myPos;
             Inventory.invInstance.SendMessage("SetPositions");
-            player.SendMessage("HoldingItem", true);
+            player.SendMessage("CanWalk", true);
 
         }
         else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
@@ -149,10 +157,10 @@ public class Bouquet : MonoBehaviour {
             Inventory.invInstance.SendMessage("AddItem", this.gameObject);
             myState = invState.INVENTORY;
 
-            player.SendMessage("HoldingItem", true);
+            player.SendMessage("CanWalk", true);
         }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
-        player.SendMessage("HoldingItem", true);
+        player.SendMessage("CanWalk", true);
     }
     void AddFlower(GameObject flower){
 

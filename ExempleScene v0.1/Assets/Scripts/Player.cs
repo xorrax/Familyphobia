@@ -10,11 +10,15 @@ using System.Collections.Generic;
 public class Player : MonoBehaviour {
     //Skapar ett nytt movement objek(länka Movement scriptet till denna)
     public Pathfinding pathfinding;
+    //Hur långt ifrån kameran objektet är (Till för att positionen ska hamna rätt från skärm till världen)
+    public float distance = 0f;
+    public Animation animation;
     public Animator anim;
     float interval = 0.2f;
     float nextTime = 0;
 
     private bool interacted = false;
+    private bool fishing = false;
     private GameObject interactedObject;
     private bool canMove = true;
     private Vector3 targetPosition = Vector3.zero;
@@ -31,6 +35,8 @@ public class Player : MonoBehaviour {
                 camera.GetComponent<CameraMovement>().target = GameObject.Find("Jack").GetComponent<Transform>();
                 camera.GetComponent<Camera>().enabled = false;
             }
+            GameObject loadingScreen = GameObject.Find("LoadingScreen");
+            loadingScreen.transform.GetChild(0).gameObject.SetActive(false);
             GameObject.Find(newRoom + "_Camera").GetComponent<Camera>().enabled = true;
             pathfinding.setGrid(GameObject.Find(newRoom + "_Background"));
             if (SharedVariables.OutFromDreamworld)
@@ -49,12 +55,21 @@ public class Player : MonoBehaviour {
             anim.Play("Idle");
 
         }
+
+
+        if(anim.GetCurrentAnimatorStateInfo(0).normalizedTime  > 1 && !anim.IsInTransition(0) && fishing)
+        {
+            anim.Play("Idle");
+            fishing = false;
+            canMove = true;
+        }
+
         if (Time.time >= nextTime) {
             if (Input.GetMouseButton(0) && canMove) {
                 //sätter target som punkten man klickade på
                 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 //Sätter rätt z position
-                targetPosition.z = 0;
+                targetPosition.z = distance;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
                 //kollar ifall rayen träffar något
@@ -92,6 +107,8 @@ public class Player : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(0))
             interacted = false;
+
+        GC();
     }
 
 
@@ -101,6 +118,19 @@ public class Player : MonoBehaviour {
 
     void SetTargetPos(Vector3 pos) {
         pathfinding.Target = pos;
+    }
+
+    void FishAnimation(GameObject o)
+    {
+        canMove = false;
+        anim.Play("Fishing");
+        fishing = true;
+    }
+
+    void GC()
+    {
+        if(Time.frameCount % 30 == 0)
+            System.GC.Collect();
     }
 }
 
