@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class RoomLightSwitch : RoomLighter {
+public class RoomLightSwitch : MonoBehaviour {
     RoomLighter roomlighter;
 
     void Start() {
-        roomlighter = this.gameObject.GetComponent<RoomLighter>();
+        roomlighter = this.gameObject.GetComponentInParent<RoomLighter>();
     }
 
     void OnMouseOver() {
