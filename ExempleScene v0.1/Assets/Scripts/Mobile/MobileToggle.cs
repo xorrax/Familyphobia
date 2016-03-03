@@ -18,16 +18,19 @@ public class MobileToggle : MonoBehaviour {
         }
     }
 
-    //void OnGui(){
-    //    Rect rect = new Rect(0, 0,Screen.width, Screen.height);
-    //    GUI.DrawTexture(rect);
-    //}
+    void OnGUI() {
+        if (isToggled) {
+            if (GUI.Button(new Rect(0, 0, Screen.width, Screen.height), "", "Label")) {
 
+            }
+        }
+    }
     public void togglePhone() {
         isToggled = !isToggled;
         transform.GetChild(1).gameObject.SetActive(isToggled);
         GameObject.FindGameObjectWithTag("Player").GetComponent<Pathfinding>().setIsActive(!isToggled);
         toggleWarp();
+
     }
 
     public void setToggle(bool value) {
@@ -47,7 +50,10 @@ public class MobileToggle : MonoBehaviour {
     }
 
     void FixedUpdate() {
+        
+        
         if (Input.GetKeyDown(KeyCode.Escape)) {
+
             if (optionsMenu.activeInHierarchy == true) {
                 optionsMenu.SetActive(false);
                 togglePhone();
