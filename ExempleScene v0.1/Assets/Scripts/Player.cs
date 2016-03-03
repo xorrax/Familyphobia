@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
     public Animator anim;
     float interval = 0.2f;
     float nextTime = 0;
+	
     public static List<GameObject> dialogueObjects = new List<GameObject>();
 	
     private bool interacted = false;
