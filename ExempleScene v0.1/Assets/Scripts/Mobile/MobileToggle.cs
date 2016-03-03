@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MobileToggle : MonoBehaviour {
     bool isToggled = false;
@@ -24,7 +25,7 @@ public class MobileToggle : MonoBehaviour {
     }
 
     public void toggleWarp() {
-        if (Application.loadedLevelName == "Level01") {
+        if (SceneManager.GetActiveScene().name == "Level01") {
             warpButton.interactable = false;
         } 
         else {
