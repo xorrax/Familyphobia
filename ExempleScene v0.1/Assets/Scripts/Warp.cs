@@ -19,15 +19,17 @@ public class Warp : MonoBehaviour {
     private float alpha;
     private GameObject warpFade;
 
-    void OnLevelWasLoaded() {
-        //Måste fixa så att det går att hitta med tag
-        player = GameObject.Find("Jack").GetComponent<Player>();
-        warpTo = GameObject.Find(newRoom + "_Spawn").GetComponent<Transform>();
-        newBackground = GameObject.Find(newRoom + "_Background");
-        newCamera = GameObject.Find(newRoom + "_Camera");
+    void OnLevelWasLoaded(int level) {
+        if (level != 0) {
+            //Måste fixa så att det går att hitta med tag
+            player = GameObject.Find("Jack").GetComponent<Player>();
+            warpTo = GameObject.Find(newRoom + "_" + currentRoom + "Spawn").GetComponent<Transform>();
+            newBackground = GameObject.Find(newRoom + "_Background");
+            newCamera = GameObject.Find(newRoom + "_Camera");
 
-        audioSource = GetComponent<AudioSource>();
-        audioSource.clip = warpSound;
+            audioSource = GetComponent<AudioSource>();
+            audioSource.clip = warpSound;
+        }
     }
 
     IEnumerator FadeIn() {

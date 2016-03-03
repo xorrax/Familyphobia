@@ -9,9 +9,13 @@ public class warpToScene : MonoBehaviour {
     public float newSceneDepth = 1.4f;
     public float newSceneDepthOffset = 3.7f;
     public bool outFromDreamWorld;
+    private MobileToggle mobileToggle;
 
     public void LoadScene(string level) {
         GameObject loadingScreen = GameObject.Find("LoadingScreen");
+        mobileToggle = GameObject.Find("Mobile").GetComponent<MobileToggle>();
+
+        mobileToggle.setToggle(false);
         loadingScreen.transform.GetChild(0).gameObject.SetActive(true);
         SharedVariables.NewRoom = spawnRoom;
         SharedVariables.OutFromDreamworld = outFromDreamWorld;
