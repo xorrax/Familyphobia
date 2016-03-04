@@ -17,7 +17,8 @@ public class DialogueReader : MonoBehaviour {
     private int playerChoice;
     private float ySpacing;
     Dialogue dialogue;
-    Color jack, beck, linda;
+    Color cJack, cBek, cLinda;
+    public static Animator aJack, aBek, aLinda;
 
     private Pathfinding pf;
     private Vector3 prewPlayerPos;
@@ -27,13 +28,22 @@ public class DialogueReader : MonoBehaviour {
         if (gameObject.GetComponent<AudioSource>() == null) {
             gameObject.AddComponent<AudioSource>();
         }
-
+        
+        if (GameObject.Find("Linda")/*.GetComponent<Animator>() */!= null) {
+            aLinda = GameObject.Find("Linda").GetComponent<Animator>();
+            Debug.Log("Linda Not NUll");
+        }
+        if (GameObject.Find("Bek")/*.GetComponent<Animator>()*/ != null) {
+            aBek = GameObject.Find("Bek").GetComponent<Animator>();
+            Debug.Log("Bek Not NUll");
+        }
+ 
         padding.x = 20;
         fixedPosition = false;
-        jack = new Vector4(0.278f, 0.419f, 0.259f, 1);
-        beck = new Vector4(0.835f, 0.71f, 0.643f, 1);
-        linda = new Vector4(0.988f, 0.459f, 0, 1);
-        pf = GameObject.FindGameObjectWithTag("Player").GetComponent<Pathfinding>();
+        cJack = new Vector4(0.278f, 0.419f, 0.259f, 1);
+        cBek = new Vector4(0.835f, 0.71f, 0.643f, 1);
+        cLinda = new Vector4(0.988f, 0.459f, 0, 1);
+        pf = aJack.GetComponent<Pathfinding>();
         audioSource = gameObject.GetComponent<AudioSource>();
         playerChoice = -1;
         dialogue = dialogueIn.GetComponent<Dialogue>();
@@ -126,11 +136,20 @@ public class DialogueReader : MonoBehaviour {
         padding.y = Mathf.RoundToInt(40 * scaling);
         style.fontSize = Mathf.RoundToInt(30 * scaling);
         if (current.name == "Jack") {
-            style.normal.textColor = jack;
+            style.normal.textColor = cJack;
+            if (aJack != null) {
+                aJack.SetFloat("dB", 1);
+            }
         } else if (current.name == "Linda") {
-            style.normal.textColor = linda;
-        } else if (current.name == "Beck") {
-            style.normal.textColor = beck;
+            style.normal.textColor = cLinda;
+            if (aLinda != null) {
+                aLinda.SetFloat("dB", audioSource.volume);
+            }
+        } else if (current.name == "Bek") {
+            style.normal.textColor = cBek;
+            if (aBek != null) {
+                aBek.SetFloat("dB", audioSource.volume);
+            }
         } else {
             style.normal.textColor = Color.white;
         }

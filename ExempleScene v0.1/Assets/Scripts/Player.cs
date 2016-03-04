@@ -27,6 +27,7 @@ public class Player : MonoBehaviour {
 
     void Start() {
         DontDestroyOnLoad(this.gameObject);
+        DialogueReader.aJack = GetComponent<Animator>();
     }
 
     void OnLevelWasLoaded(int scene) {
@@ -53,7 +54,7 @@ public class Player : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if (Input.GetKeyDown("space")) {
-            anim.Play("Painting");
+            anim.Play("Fishing");
             anim.Play("Idle");
 
         }
@@ -98,11 +99,13 @@ public class Player : MonoBehaviour {
         }
 
         if (interacted) {
-            float tempDist = gameObject.GetComponent<BoxCollider>().bounds.size.x + interactedObject.GetComponent<Collider>().bounds.size.x + 1;
-            if (Vector3.Distance(transform.position, interactedObject.transform.position) <= tempDist) {
+            if (interactedObject != null) {
+                float tempDist = gameObject.GetComponent<BoxCollider>().bounds.size.x + interactedObject.GetComponent<Collider>().bounds.size.x + 1;
+                if (Vector3.Distance(transform.position, interactedObject.transform.position) <= tempDist) {
 
-                if (interactedObject.tag == "NPC" || interactedObject.tag == "Interactable") {
-                    interactedObject.GetComponent<NPC>().self.interact();
+                    if (interactedObject.tag == "NPC" || interactedObject.tag == "Interactable") {
+                        interactedObject.GetComponent<NPC>().self.interact();
+                    }
                 }
             }
         }
