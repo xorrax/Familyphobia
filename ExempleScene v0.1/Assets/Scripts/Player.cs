@@ -53,7 +53,7 @@ public class Player : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if (Input.GetKeyDown("space")) {
-            anim.Play("Painting");
+            anim.Play("Fishing");
             anim.Play("Idle");
 
         }

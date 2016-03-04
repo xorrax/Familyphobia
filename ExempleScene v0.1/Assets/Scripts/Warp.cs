@@ -6,6 +6,7 @@ public class Warp : MonoBehaviour {
     public float newScale = 0.5f;
     public float newDepth = 1f;
     public float newDepthOffset;
+    private bool clicked = false;
     private Player player;
     private Transform warpTo;
     private GameObject newBackground;
@@ -74,7 +75,7 @@ public class Warp : MonoBehaviour {
     }
 
     void OnTriggerEnter(Collider collider) {
-        if (collider.gameObject.tag == "Player") {
+        if (collider.gameObject.tag == "Player" && clicked) {
             if (!GameObject.Find("WarpFade")) {
                 player.pathfinding.endPathfinding();
                 player.pathfinding.setIsActive(false);
@@ -96,6 +97,7 @@ public class Warp : MonoBehaviour {
                 warpFade.GetComponent<SpriteRenderer>().sortingOrder = 1000;
                 warpFade.transform.localScale += new Vector3(20 * transform.localScale.x, 8 * transform.localScale.y, transform.localScale.z);
 
+                clicked = false;
                 StartCoroutine("FadeIn");
             }
 
@@ -104,6 +106,9 @@ public class Warp : MonoBehaviour {
 
     void OnMouseOver() {
         Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+        if (Input.GetMouseButton(0)) {
+            clicked = true;
+        }
     }
 
     void OnMouseExit() {
