@@ -28,7 +28,6 @@ public class DefaultCamera : CameraMovement {
         min.x = bottomLeft.x + (width / 2);
         min.y = bottomLeft.y + (height / 2);
 
-
     }
 
     public override float getMinY() {
@@ -77,9 +76,9 @@ public class DefaultCamera : CameraMovement {
 
         if (thisCamera.enabled)
         {
+            Debug.Log(gameObject.name);
             if (Inventory.invInstance != null) {
-                Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
-                    Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
+                Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x,
                     Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
 
             }

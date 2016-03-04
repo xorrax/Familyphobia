@@ -19,6 +19,8 @@ public class Bouquet : MonoBehaviour {
     private bool myDragging = false;
     private bool canCombine = true;
     private bool sentFlowerAmount = false;
+    private bool clickMove = false;
+    private float clickTimer = 0f;
     private Vector2 myPos = Vector2.zero;
     private GameObject player;
     private GameObject otherComboObject;
@@ -60,18 +62,30 @@ public class Bouquet : MonoBehaviour {
         {
             onGoal = false;
         }
-	}
 
-    void FixedUpdate(){
-        if (myDragging && myState != invState.SLEEPING){
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Vector2 rayPoint = ray.GetPoint(myDistance);
-            transform.position = rayPoint;
-        }
         if (flowerList.Count == 3 && !sentFlowerAmount)
         {
             sentFlowerAmount = true;
             goalObject.SendMessage("GotFlowers");
+        }
+    }
+
+    void FixedUpdate(){
+
+        if (clickMove)
+        {
+            clickTimer += Time.deltaTime;
+            if (clickTimer >= 1)
+            {
+                clickMove = false;
+                clickTimer = 0;
+            }
+        }
+
+        if (myDragging && myState != invState.SLEEPING){
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Vector2 rayPoint = ray.GetPoint(myDistance);
+            transform.position = rayPoint;
         }
     }
 
@@ -137,30 +151,44 @@ public class Bouquet : MonoBehaviour {
 
     void OnMouseDown(){
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        myDragging = true;
+        if(!myDragging)
+        {
+            clickMove = true;
+            myDragging = true;
+        }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
         player.SendMessage("CanWalk", false);
     }
 
     void OnMouseUp(){
-        myDragging = false;
-
-        if(myState == invState.INVENTORY){
-            this.gameObject.transform.position = myPos;
-            Inventory.invInstance.SendMessage("SetPositions");
-            player.SendMessage("CanWalk", true);
-
-        }
-        else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
+        if(clickMove)
         {
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-            myState = invState.INVENTORY;
+            clickMove = false;
+            clickTimer = 0f;
+            myDragging = true;
+        }
+        else
+        {
+            myDragging = false;
 
+            if (myState == invState.INVENTORY)
+            {
+                this.gameObject.transform.position = myPos;
+                Inventory.invInstance.SendMessage("SetPositions");
+                player.SendMessage("CanWalk", true);
+
+            }
+            else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
+            {
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                myState = invState.INVENTORY;
+
+                player.SendMessage("CanWalk", true);
+            }
+            this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
             player.SendMessage("CanWalk", true);
         }
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
-        player.SendMessage("CanWalk", true);
     }
     void AddFlower(GameObject flower){
 
@@ -172,18 +200,7 @@ public class Bouquet : MonoBehaviour {
 
 
         flowerList.Add(flower);
-        flower.transform.position = gameObject.transform.position;
-
-
-        //Ta inte bort detta~~
-        //if (flower.name == "BlueFlower")
-        //    flower.SendMessage("ChangeSprite", flower.GetComponent<SpriteRenderer>().sprite = blueFlower);
-        //else if (flower.name == "RedFlower")
-        //    flower.SendMessage("ChangeSprite", flower.GetComponent<SpriteRenderer>().sprite = redFlower);
-        //else if (flower.name == "OrangeFlower")
-        //    flower.SendMessage("ChangeSprite", flower.GetComponent<SpriteRenderer>().sprite = orangeFlower);
-        //else if (flower.name == "BrownFlower")
-        //    flower.SendMessage("ChangeSprite", flower.GetComponent<SpriteRenderer>().sprite = brownFlower);            
+        flower.transform.position = gameObject.transform.position;    
     }
 
     void RemoveBouquet(){

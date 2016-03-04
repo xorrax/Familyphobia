@@ -12,6 +12,10 @@ public class ShedCamera : CameraMovement {
     Vector3 bottomLeft;
     float height;
     float width;
+    float originalHeight;
+    float originalWidth;
+    private bool hasScaled = false;
+    private float cameraSize = 0f;
     Vector2 minOffset;
     Vector2 maxOffset;
 
@@ -22,6 +26,9 @@ public class ShedCamera : CameraMovement {
         height = 2f * thisCamera.orthographicSize;
         width = height * thisCamera.aspect;
 
+        originalHeight = 2f * thisCamera.orthographicSize;
+        originalWidth = height * thisCamera.aspect;
+
         bottomLeft = new Vector3(background.transform.position.x - (background.GetComponent<Renderer>().bounds.size.x / 2),
             background.transform.position.y - (background.GetComponent<Renderer>().bounds.size.y / 2), 0);
 
@@ -30,8 +37,9 @@ public class ShedCamera : CameraMovement {
 
         min.x = bottomLeft.x + (width / 2);
         min.y = bottomLeft.y + (height / 2);
+        cameraSize = thisCamera.orthographicSize;
+           
         StartCoroutine("ZoomOut");
-
 
     }
 
@@ -98,19 +106,43 @@ public class ShedCamera : CameraMovement {
 
         if (thisCamera.enabled)
         {
-            Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
-                Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
-                Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
+            //Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
+            //    Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
+            //    thisCamera.transform.position.y - thisCamera.orthographicSize * thisCamera.aspect / 2 -
+            //    Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.height / 50 + 0.1f + Inventory.invInstance.currentOffsetY,
+            //    Inventory.invInstance.transform.position.z);
 
-            Debug.Log(thisCamera.name);
+            Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x,
+                (-thisCamera.orthographicSize * Screen.width / Screen.height) / 2 + Inventory.invInstance.currentOffsetY + 0.3f,
+                Inventory.invInstance.transform.position.z);
+
+            Debug.Log(thisCamera.pixelWidth);
         }
     }
 
     IEnumerator ZoomOut(){
         while (thisCamera.orthographicSize <= zoomOutSize) {
-            if(thisCamera.enabled)
-            thisCamera.orthographicSize += 0.01f; 
+            if (thisCamera.enabled)
+            {
+                target.SendMessage("CanWalk", false);
+                if (Inventory.invInstance != null)
+                {
+                    Inventory.invInstance.SetInventory(false);
+                    Inventory.invInstance.GetComponent<SpriteRenderer>().enabled = false;
+                    //Inventory.invInstance.transform.localScale = new Vector3(Inventory.invInstance.transform.localScale.x + 0.01f, Inventory.invInstance.transform.localScale.y + 0.01f, Inventory.invInstance.transform.localScale.z);
+                }
+                thisCamera.orthographicSize += 0.01f;
+            }
             yield return 0;
+        }
+        if (thisCamera.orthographicSize >= zoomOutSize && !hasScaled)
+        {
+            float newScale = (width / originalWidth);
+            Inventory.invInstance.transform.localScale = new Vector3(Inventory.invInstance.transform.localScale.x * newScale - 0.01f, Inventory.invInstance.transform.localScale.y * newScale, transform.localScale.z);
+            //Inventory.invInstance.SendMessage("SetPositions");
+            Inventory.invInstance.GetComponent<SpriteRenderer>().enabled = true;
+            target.SendMessage("CanWalk", true);
+            hasScaled = true;
         }
 
     }

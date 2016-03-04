@@ -12,6 +12,8 @@ public class Glove : MonoBehaviour
     private bool clicked = false;
     private bool mouseOutside = true;
     private bool scaled = false;
+    private bool clickMove = false;
+    private float clickTimer = 0f;
     private Vector2 myPos = new Vector2();
     private GameObject player;
     private int brokenValue = 0;
@@ -54,20 +56,21 @@ public class Glove : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (clickMove)
+        {
+            clickTimer += Time.deltaTime;
+            if (clickTimer >= 1)
+            {
+                clickMove = false;
+                clickTimer = 0;
+            }
+        }
+
         if (myDragging && myState != invState.SLEEPING)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Vector2 rayPoint = ray.GetPoint(myDistance);
             transform.position = rayPoint;
-        }
-    }
-    
-    void OnColliderStay(Collider col)
-    {
-        if (Input.GetMouseButtonUp(0))
-        {
-            if (col.tag == "flower")
-                myState = invState.COMBINATION;
         }
     }
 
@@ -129,52 +132,65 @@ public class Glove : MonoBehaviour
     void OnMouseDown()
     {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        myDragging = true;
+        if(!myDragging)
+        {
+            clickMove = true;
+            myDragging = true;
+        }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
         player.SendMessage("CanWalk", false);
     }
 
     void OnMouseUp()
     {
-        myDragging = false;
-
-        if (myState == invState.SLEEPING)
+        if(clickMove)
         {
-            if (Vector3.Distance(player.transform.position, gameObject.transform.position) <= goalDistance)
+            clickMove = false;
+            myDragging = true;
+            clickTimer = 0f;
+        }
+        else
+        {
+            myDragging = false;
+
+            if (myState == invState.SLEEPING)
             {
-                if (scaled)
+                if (Vector3.Distance(player.transform.position, gameObject.transform.position) <= goalDistance)
                 {
-                    scaled = false;
-                    gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                    if (scaled)
+                    {
+                        scaled = false;
+                        gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                    }
+                    Inventory.invInstance.SendMessage("AddItem", gameObject);
+                    myState = invState.INVENTORY;
+                    gameObject.GetComponent<AudioSource>().Play();
                 }
+                else
+                {
+                    clicked = true;
+                    player.SendMessage("SetTargetPos", pathfindingPos);
+                }
+            }
+            else if (myState == invState.COMBINATION)
+            {
+                StartCoroutine(wait());
+            }
+            else if (myState == invState.INVENTORY)
+            {
+                this.gameObject.transform.position = myPos;
+                Inventory.invInstance.SendMessage("SetPositions");
+            }
+            else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
+            {
+                StartCoroutine(wait());
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
                 Inventory.invInstance.SendMessage("AddItem", gameObject);
                 myState = invState.INVENTORY;
-                gameObject.GetComponent<AudioSource>().Play();
             }
-            else
-            {
-                clicked = true;
-                player.SendMessage("SetTargetPos", pathfindingPos);
-            }
+            player.SendMessage("CanWalk", true);
+            this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
         }
-        else if(myState == invState.COMBINATION)
-        {
-            StartCoroutine(wait());
-        }
-        else if (myState == invState.INVENTORY)
-        {
-            this.gameObject.transform.position = myPos;
-            Inventory.invInstance.SendMessage("SetPositions");
-        }
-        else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
-        {
-            StartCoroutine(wait());
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", gameObject);
-            myState = invState.INVENTORY;
-        }
-        player.SendMessage("CanWalk", true);
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
     }
 
     IEnumerator wait()

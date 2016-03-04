@@ -31,6 +31,9 @@ public class Key : MonoBehaviour
     private bool scaled = false;
     private bool lindaDistracted = false;
     private bool lastLindaDistraced = true;
+    private bool clickMove = false;
+    private float clickTimer = 0f;
+
     private enum invState
     {
         DRAGGING,  //..
@@ -108,6 +111,16 @@ public class Key : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (clickMove)
+        {
+            clickTimer += Time.deltaTime;
+            if (clickTimer >= 1)
+            {
+                clickMove = false;
+                clickTimer = 0;
+            }
+        }
+
         if (myDragging && myState != invState.SLEEPING && pickedUp)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -240,33 +253,47 @@ public class Key : MonoBehaviour
     void OnMouseDown()
     {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        myDragging = true;
+        if(!myDragging)
+        {
+            clickMove = true;
+            myDragging = true;
+        }
+        
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
         player.SendMessage("CanWalk", false);
     }
 
     void OnMouseUp()
     {
-        myDragging = false;
+        if (clickMove)
+        {
+            myDragging = true;
+            clickMove = false;
+            clickTimer = 0f;
+        }
+        else
+        {
+            myDragging = false;
 
-        if (myState == invState.COMBINATION)
-        {
-            StartCoroutine(wait());
-        }
-        else if (myState == invState.INVENTORY)
-        {
-            this.gameObject.transform.position = myPos;
-            Inventory.invInstance.SendMessage("SetPositions");
-        }
-        else if (myState == invState.DRAGGING)
-        {
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-            myState = invState.INVENTORY;
-        }
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
+            if (myState == invState.COMBINATION)
+            {
+                StartCoroutine(wait());
+            }
+            else if (myState == invState.INVENTORY)
+            {
+                this.gameObject.transform.position = myPos;
+                Inventory.invInstance.SendMessage("SetPositions");
+            }
+            else if (myState == invState.DRAGGING)
+            {
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                myState = invState.INVENTORY;
+            }
+            this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
 
-        player.SendMessage("CanWalk", true);
+            player.SendMessage("CanWalk", true);
+        }
     }
 
     IEnumerator wait()

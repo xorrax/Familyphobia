@@ -24,7 +24,10 @@ public class FishingRod : MonoBehaviour
     private bool canCombine = false;
     private bool hasCombined = false;
     private bool clicked = false;
+    private bool onGoal = false;
     private bool scaled = false;
+    private bool clickMove = false;
+    private float clickTimer = 0f;
     private Vector2 myPos = new Vector2();
     private Vector3 goalPathfindingPos = Vector3.zero;
     private GameObject player;
@@ -74,14 +77,14 @@ public class FishingRod : MonoBehaviour
 
     void Update()
     {
-        if(clicked && Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
+        if (clicked && Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
         {
             if (scaled)
             {
                 scaled = false;
                 gameObject.transform.localScale = new Vector3(1f, 1f, 1);
             }
-
+            transform.rotation = Quaternion.LookRotation(new Vector3(0, 0, 0), Vector3.forward);
             this.gameObject.GetComponent<SpriteRenderer>().sprite = invSprite;
             gameObject.transform.localScale = new Vector3(1, 1, 1);
             gameObject.GetComponent<BoxCollider>().size = new Vector3(0.55f, 0.86f, 0.2f);
@@ -89,7 +92,25 @@ public class FishingRod : MonoBehaviour
             myState = invState.INVENTORY;
         }
 
-        if(Input.GetMouseButtonDown(0))
+        if (Vector3.Distance(player.transform.position, goalPathfindingPos) <= 0.5f && onGoal)
+        {
+            if (hasWorm && !Input.GetMouseButton(0))
+            {
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                hasWorm = false;
+                gameObject.GetComponent<SpriteRenderer>().sprite = rodSprite;
+
+                Debug.Log("1");
+            }
+            else if (!hasWorm && !lindaDistracted && !Input.GetMouseButton(0))
+            {
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
+                Debug.Log("3");
+            }
+        }
+
+        if (Input.GetMouseButtonDown(0))
         {
             clicked = false;
         }
@@ -100,6 +121,16 @@ public class FishingRod : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (clickMove)
+        {
+            clickTimer += Time.deltaTime;
+            if (clickTimer >= 1)
+            {
+                clickMove = false;
+                clickTimer = 0;
+            }
+        }
+
         if (myDragging && myState != invState.SLEEPING)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -108,7 +139,8 @@ public class FishingRod : MonoBehaviour
         }
     }
 
-    void OnTriggerStay(Collider col){
+    void OnTriggerStay(Collider col)
+    {
         if (combinationObject != null && col.gameObject.name == combinationObject.name
             && myState != invState.SLEEPING && otherState != invState.SLEEPING)
         {
@@ -127,24 +159,26 @@ public class FishingRod : MonoBehaviour
         {
             myState = invState.COMBINATION;
             goalObject.SendMessage("HasWorm", hasWorm);
-            if (Vector3.Distance(player.transform.position, goalPathfindingPos) <= 0.5f)
+            if (hasWorm && !Input.GetMouseButton(0))
             {
-                if (hasWorm && !Input.GetMouseButton(0))
+                if (Vector3.Distance(player.transform.position, goalPathfindingPos) <= 0.5f)
                 {
                     Inventory.invInstance.SendMessage("AddItem", this.gameObject);
                     hasWorm = false;
                     gameObject.GetComponent<SpriteRenderer>().sprite = rodSprite;
-
-                    Debug.Log("1");
                 }
-                else if(!hasWorm && !lindaDistracted && !Input.GetMouseButton(0))
-                {
-                    Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-                    Debug.Log("3");
-                }
+                else
+                    onGoal = true;
+                Debug.Log("1");
+            }
+            else if (!hasWorm && !lindaDistracted && !Input.GetMouseButton(0))
+            {
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
+                Debug.Log("3");
             }
 
-            if(Input.GetMouseButtonUp(0))
+            if (Input.GetMouseButtonUp(0))
                 Inventory.invInstance.SendMessage("SetPositions");
         }
         if (col.name == invName && myState != invState.INVENTORY)
@@ -161,8 +195,8 @@ public class FishingRod : MonoBehaviour
             Inventory.invInstance.SendMessage("SetPositions");
             myState = invState.DRAGGING;
         }
-        else if(goalObject != null)
-        { 
+        else if (goalObject != null)
+        {
             if (col.name == goalObject.name)
             {
                 myState = invState.DRAGGING;
@@ -184,11 +218,13 @@ public class FishingRod : MonoBehaviour
         goalPathfindingPos = pos;
     }
 
-    void HasWorm(bool value){
+    void HasWorm(bool value)
+    {
         hasWorm = value;
     }
 
-    void LindaDistracted(bool value){
+    void LindaDistracted(bool value)
+    {
         lindaDistracted = value;
     }
 
@@ -206,62 +242,76 @@ public class FishingRod : MonoBehaviour
         if (myState == invState.SLEEPING && scaled)
         {
             scaled = false;
-            gameObject.transform.localScale = new Vector3(gameObject.transform.localScale.x * (1/1.1f), gameObject.transform.localScale.y * (1/1.1f), 1);
+            gameObject.transform.localScale = new Vector3(gameObject.transform.localScale.x * (1 / 1.1f), gameObject.transform.localScale.y * (1 / 1.1f), 1);
         }
     }
 
     void OnMouseDown()
     {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        myDragging = true;
+        if (!myDragging)
+        {
+            myDragging = true;
+            clickMove = true;
+        }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
         player.SendMessage("CanWalk", false);
     }
 
     void OnMouseUp()
     {
-        myDragging = false;
-        if (myState == invState.SLEEPING)
+        if (clickMove)
         {
-            if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
+            myDragging = true;
+            clickMove = false;
+            clickTimer = 0f;
+        }
+        else
+        {
+            myDragging = false;
+            if (myState == invState.SLEEPING)
             {
-                if (scaled)
+                if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
                 {
-                    scaled = false;
-                    gameObject.transform.localScale = new Vector3(1f, 1f, 1);
-                }
+                    if (scaled)
+                    {
+                        scaled = false;
+                        gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                        transform.rotation = Quaternion.LookRotation(new Vector3(0, 0, 0), Vector3.forward);
+                    }
 
-                this.gameObject.GetComponent<SpriteRenderer>().sprite = invSprite;
-                gameObject.transform.localScale = new Vector3(1, 1, 1);
-                gameObject.GetComponent<BoxCollider>().size = new Vector3(0.55f, 0.86f, 0.2f);
+                    this.gameObject.GetComponent<SpriteRenderer>().sprite = invSprite;
+                    gameObject.transform.localScale = new Vector3(1, 1, 1);
+                    gameObject.GetComponent<BoxCollider>().size = new Vector3(0.55f, 0.86f, 0.2f);
+                    Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                    myState = invState.INVENTORY;
+                }
+                else
+                {
+                    clicked = true;
+                    player.SendMessage("SetTargetPos", pathfindingPos);
+                }
+            }
+            else if (myState == invState.COMBINATION)
+            {
+                StartCoroutine(wait());
+                Inventory.invInstance.SendMessage("SetPositions");
+            }
+            else if (myState == invState.INVENTORY)
+            {
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                this.gameObject.transform.position = myPos;
+            }
+            else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
+            {
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
                 Inventory.invInstance.SendMessage("AddItem", this.gameObject);
                 myState = invState.INVENTORY;
             }
-            else
-            {
-                clicked = true;
-                player.SendMessage("SetTargetPos", pathfindingPos);
-            }
+            this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
+            player.SendMessage("CanWalk", true);
         }
-        else if(myState == invState.COMBINATION)
-        {
-            StartCoroutine(wait());
-            Inventory.invInstance.SendMessage("SetPositions");
-        }
-        else if (myState == invState.INVENTORY)
-        {
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-            this.gameObject.transform.position = myPos;
-        }
-        else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
-        {
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-            myState = invState.INVENTORY;
-        }
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
-        player.SendMessage("CanWalk", true);
     }
 
     void NewScene()
