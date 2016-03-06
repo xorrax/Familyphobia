@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 
 // !OBS! NPC class måste finnas
@@ -31,7 +32,10 @@ public class Player : MonoBehaviour {
     }
 
     void OnLevelWasLoaded(int scene) {
-        if (scene != 0) {
+        if (SceneManager.GetActiveScene().name == "LoadingScreen") {
+            GameObject camera = GameObject.Find("LoadingScreen_Camera");
+        }
+        else if (scene != 0) {
             string newRoom = SharedVariables.NewRoom;
             GameObject[] mainCameras = GameObject.FindGameObjectsWithTag("MainCamera");
             foreach (GameObject camera in mainCameras) {
@@ -44,8 +48,6 @@ public class Player : MonoBehaviour {
                 transform.position = GameObject.Find(newRoom + "_DreamworldSpawn").GetComponent<Transform>().position;
             else
                 transform.position = GameObject.Find(newRoom + "_Spawn").GetComponent<Transform>().position;
-
-
         }
     }
 
