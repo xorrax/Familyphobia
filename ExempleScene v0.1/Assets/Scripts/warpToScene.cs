@@ -12,18 +12,17 @@ public class warpToScene : MonoBehaviour {
     private MobileToggle mobileToggle;
 
     public void LoadScene(string level) {
-        GameObject loadingScreen = GameObject.Find("LoadingScreen");
         mobileToggle = GameObject.Find("Mobile").GetComponent<MobileToggle>();
 
         mobileToggle.setToggle(false);
-        loadingScreen.transform.GetChild(0).gameObject.SetActive(true);
         SharedVariables.NewRoom = spawnRoom;
+        SharedVariables.NewScene = level;
         SharedVariables.OutFromDreamworld = outFromDreamWorld;
         Player player = GameObject.Find("Jack").GetComponent<Player>();
         player.gameObject.GetComponent<FakePerspective>().setStartScale(new Vector3(newSceneScale, newSceneScale, player.transform.localScale.z));
         player.gameObject.GetComponent<FakePerspective>().depth = newSceneDepth;
         player.gameObject.GetComponent<FakePerspective>().depthOffset = newSceneDepthOffset;
-        SceneManager.LoadScene(level);
+        SceneManager.LoadScene("LoadingScreen");
     }
 
 }

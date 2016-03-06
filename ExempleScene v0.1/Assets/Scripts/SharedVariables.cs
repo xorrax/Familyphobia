@@ -3,6 +3,7 @@ using System.Collections;
 
 public class SharedVariables : MonoBehaviour {
     private static string newRoom;
+    private static string newScene;
     private static bool outFromDreamworld;
 
     public static bool OutFromDreamworld {
@@ -19,6 +20,15 @@ public class SharedVariables : MonoBehaviour {
         }
         get {
             return newRoom;
+        }
+    }
+
+    public static string NewScene {
+        set {
+            newScene = value;
+        }
+        get {
+            return newScene;
         }
     }
 }
