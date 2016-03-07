@@ -7,10 +7,11 @@ public class EyeMovement : MonoBehaviour {
     SpriteRenderer background;
     Vector3 lawnmowerMin;
     Vector3 lawnmowerMax;
+    Vector2 lawnmowerDistance;
     Vector3 backgroundMin;
     Vector3 backgroundMax;
-    Vector3 realMin;
-    Vector3 realMax;
+    Vector2 backgroundDistance;
+    Vector2 lawnAndBackDifference;
     float procentX;
 
     void Start() {
@@ -19,16 +20,19 @@ public class EyeMovement : MonoBehaviour {
         lawnmower = transform.GetComponentInParent<SpriteRenderer>();
         lawnmowerMin = lawnmower.bounds.min;
         lawnmowerMax = lawnmower.bounds.max;
+        lawnmowerDistance = new Vector2(lawnmowerMax.x - lawnmowerMin.x, lawnmowerMax.y - lawnmowerMin.y);
         backgroundMin = background.bounds.min;
         backgroundMax = background.bounds.max;
-
-        procentX = ((lawnmowerMax.x - lawnmowerMin.x) / (backgroundMax.x - backgroundMin.x)) * 4;
+        backgroundDistance = new Vector2(backgroundMax.x - backgroundMin.x, backgroundMax.y - backgroundMin.y);
+        lawnAndBackDifference = new Vector2(lawnmowerDistance.x / backgroundDistance.x, lawnmowerDistance.y / backgroundDistance.y);
+        procentX = (lawnAndBackDifference.x + lawnAndBackDifference.y) / 2;
     }
-    void eyeXMovement() {
-        transform.position = new Vector3(jack.transform.position.x * procentX, 0, -1);
+
+    void eyeMovement() {
+        transform.position = new Vector3(transform.parent.position.x + jack.position.x * procentX, transform.parent.position.y + jack.position.y * procentX, -1);
     }
 
 	void Update () {
-        eyeXMovement();
+        eyeMovement();
 	}
 }
