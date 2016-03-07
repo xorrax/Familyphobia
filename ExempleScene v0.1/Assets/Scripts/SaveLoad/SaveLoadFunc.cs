@@ -12,15 +12,15 @@ public class SaveLoadFunc{
         saveList.Add(Inventory.invInstance.existingItem);
 
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.persistentDataPath + "/saveList.gd");
+        FileStream file = File.Create(Application.persistentDataPath + "/saveList.bek");
         bf.Serialize(file, SaveLoadFunc.saveList);
         file.Close();
     }
 
     public static void Load() {
-        if (File.Exists(Application.persistentDataPath + "/savedGames.gd")) {
+        if (File.Exists(Application.persistentDataPath + "/saveList.bek")) {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + "/savedGames.bek", FileMode.Open);
             SaveLoadFunc.saveList = (List<object>)bf.Deserialize(file);
             file.Close();
         }
