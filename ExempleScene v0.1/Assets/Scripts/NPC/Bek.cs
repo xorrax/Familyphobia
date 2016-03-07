@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Adolf : NPC {
+public class Bek : NPC {
 
     void Start() {
         gameObject.AddComponent<NPC>();
         gameObject.GetComponent<NPC>().self = this;
-        DialogueReader.aLinda = GetComponent<Animator>();
+        DialogueReader.aBek = GetComponent<Animator>();
     }
 
     public override void interact() {

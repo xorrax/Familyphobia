@@ -22,34 +22,49 @@ public class DialogueReader : MonoBehaviour {
 
     private Pathfinding pf;
     private Vector3 prewPlayerPos;
+
     private Vector3 prewCameraPos;
 
-    void Start() {
-        if (gameObject.GetComponent<AudioSource>() == null) {
-            gameObject.AddComponent<AudioSource>();
-        }
-        
-        if (GameObject.Find("Linda")/*.GetComponent<Animator>() */!= null) {
-            aLinda = GameObject.Find("Linda").GetComponent<Animator>();
-            Debug.Log("Linda Not NUll");
-        }
-        if (GameObject.Find("Bek")/*.GetComponent<Animator>()*/ != null) {
-            aBek = GameObject.Find("Bek").GetComponent<Animator>();
-            Debug.Log("Bek Not NUll");
-        }
- 
-        padding.x = 20;
-        fixedPosition = false;
-        cJack = new Vector4(0.278f, 0.419f, 0.259f, 1);
-        cBek = new Vector4(0.835f, 0.71f, 0.643f, 1);
-        cLinda = new Vector4(0.988f, 0.459f, 0, 1);
-        pf = aJack.GetComponent<Pathfinding>();
-        audioSource = gameObject.GetComponent<AudioSource>();
-        playerChoice = -1;
-        dialogue = dialogueIn.GetComponent<Dialogue>();
-        current = dialogue.qac[0];
-    }
+    private float clipTimePlayed;
 
+    Test test = new Test();
+
+    void OnLevelWasLoaded(int scene) {
+
+        if (scene != 0) {
+            if (gameObject.GetComponent<AudioSource>() == null) {
+                gameObject.AddComponent<AudioSource>();
+            }
+
+            if (GameObject.Find("Linda")/*.GetComponent<Animator>() */!= null) {
+                aLinda = GameObject.Find("Linda").GetComponent<Animator>();
+                Debug.Log("Linda Not NUll");
+            }
+            if (GameObject.Find("Bek")/*.GetComponent<Animator>()*/ != null) {
+                aBek = GameObject.Find("Bek").GetComponent<Animator>();
+                Debug.Log("Bek Not NUll");
+            }
+
+            padding.x = 20;
+            fixedPosition = false;
+            cJack = new Vector4(0.278f, 0.419f, 0.259f, 1);
+            cBek = new Vector4(0.835f, 0.71f, 0.643f, 1);
+            cLinda = new Vector4(0.988f, 0.459f, 0, 1);
+            pf = aJack.GetComponent<Pathfinding>();
+            // audioSource = gameObject.GetComponent<AudioSource>();
+            audioSource = GameObject.Find("Dialouge").GetComponent<AudioSource>();
+            playerChoice = -1;
+            dialogue = dialogueIn.GetComponent<Dialogue>();
+            current = dialogue.qac[0];
+        }
+    }
+    IEnumerator playAnimation(Test test) {
+            test.anim.SetFloat("dB", 1f);
+            yield return new WaitForSeconds(test.time);
+            clipTimePlayed = 0;
+            test.anim.SetFloat("dB", 0);
+            test.done = true;
+    }
     void Update() {
 
         if (current.type == dialogueProperty.start) {
@@ -138,17 +153,36 @@ public class DialogueReader : MonoBehaviour {
         if (current.name == "Jack") {
             style.normal.textColor = cJack;
             if (aJack != null) {
-                aJack.SetFloat("dB", 1);
+                if (audioSource.clip != null) {
+                    if (!test.done) {
+                        test.anim = aJack;
+                        test.time = audioSource.clip.length;
+                        StartCoroutine("playAnimation", test);
+                    }
+                }
             }
         } else if (current.name == "Linda") {
             style.normal.textColor = cLinda;
             if (aLinda != null) {
-                aLinda.SetFloat("dB", audioSource.volume);
+                if (audioSource.clip != null) {
+                    if (!test.done) {
+                        test.anim = aLinda;
+                        test.time = audioSource.clip.length;
+                        StartCoroutine("playAnimation", test);
+                    }
+                }
             }
         } else if (current.name == "Bek") {
             style.normal.textColor = cBek;
             if (aBek != null) {
-                aBek.SetFloat("dB", audioSource.volume);
+                if (audioSource.clip != null) {
+                    if (!test.done) {
+                        test.anim = aBek;
+                        test.time = audioSource.clip.length;
+                        StartCoroutine("playAnimation", test);
+                    }
+                   
+                }
             }
         } else {
             style.normal.textColor = Color.white;
@@ -234,6 +268,10 @@ public class DialogueReader : MonoBehaviour {
     void nextQAC(int index) {
         audioSource.Stop();
         current = dialogue.qac[current.next[index]];
+        if (test.anim != null) {
+            test.anim.SetFloat("dB", 0f);
+        }
+        test = new Test();
     }
 
     void playDialogueSound(int index) {
@@ -242,4 +280,16 @@ public class DialogueReader : MonoBehaviour {
             audioSource.Play();
         }
     }
+}
+
+public class Test{
+
+    public Animator anim;
+    public float time;
+    public bool done;
+
+    public Test() {
+        done = false;
+    }
+
 }

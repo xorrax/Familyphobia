@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 public enum dialogueProperty { start, player, NPC, requirement, getDialogueItem, warp, empty, end }

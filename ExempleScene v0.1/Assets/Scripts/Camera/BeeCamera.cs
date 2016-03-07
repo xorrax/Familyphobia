@@ -7,11 +7,12 @@ public class BeeCamera : CameraMovement {
     private Vector2 max;
     private Vector2 min;
     private float cameraMove = 1f;
-    public float zoomOutSpeed = 0.001f;
+    public float zoomOutSpeed = 0.05f;
     public float offSet = 14;
     public float zoomOutSize = 5.35f;
     Vector3 bottomLeft;
     Vector2 bottomRight;
+    Vector3 center;
     float height;
     float width;
     float originalHeight;
@@ -20,6 +21,7 @@ public class BeeCamera : CameraMovement {
     private float cameraSize = 0f;
     Vector2 minOffset;
     Vector2 maxOffset;
+    bool followTarget = true;
 
     protected override void Start() {
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
@@ -36,6 +38,8 @@ public class BeeCamera : CameraMovement {
 
         bottomRight = new Vector2(background.transform.position.x + (background.GetComponent<Renderer>().bounds.size.x / 2),
             background.transform.position.y - (background.GetComponent<Renderer>().bounds.size.y / 2));
+        center = new Vector3(bottomLeft.x + background.GetComponent<Renderer>().bounds.size.x / 2, 
+            bottomLeft.y + background.GetComponent<Renderer>().bounds.size.y / 2, -10);
 
         max.x = ((bottomLeft.x + background.GetComponent<Renderer>().bounds.size.x) - (width / 2));
         max.y = ((bottomLeft.y + background.GetComponent<Renderer>().bounds.size.y) - (height / 2));
@@ -61,6 +65,7 @@ public class BeeCamera : CameraMovement {
         }
     }
     public void zoomOut() {
+        followTarget = false;
         StartCoroutine("ZoomOut");
     }
 
@@ -87,34 +92,35 @@ public class BeeCamera : CameraMovement {
         minOffset.y = thisCamera.transform.position.y - (height / offSet);
         maxOffset.y = thisCamera.transform.position.y + (height / offSet);
 
-        
+        if (followTarget) {
 
-        if (target.position.x < minOffset.x) {
-            thisCamera.transform.position = new Vector3(thisCamera.transform.position.x + (target.transform.position.x - minOffset.x), thisCamera.transform.position.y, -10);
-            if (thisCamera.transform.position.x < min.x) {
-                thisCamera.transform.position = new Vector3(min.x, thisCamera.transform.position.y, -10);
+            if (target.position.x < minOffset.x) {
+                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x + (target.transform.position.x - minOffset.x), thisCamera.transform.position.y, -10);
+                if (thisCamera.transform.position.x < min.x) {
+                    thisCamera.transform.position = new Vector3(min.x, thisCamera.transform.position.y, -10);
+                }
             }
-        }
 
-        if (target.position.x > maxOffset.x) {
-            thisCamera.transform.position = new Vector3(thisCamera.transform.position.x + (target.transform.position.x - maxOffset.x), thisCamera.transform.position.y, -10);
-            if (thisCamera.transform.position.x > max.x) {
-                thisCamera.transform.position = new Vector3(max.x, thisCamera.transform.position.y, -10);
+            if (target.position.x > maxOffset.x) {
+                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x + (target.transform.position.x - maxOffset.x), thisCamera.transform.position.y, -10);
+                if (thisCamera.transform.position.x > max.x) {
+                    thisCamera.transform.position = new Vector3(max.x, thisCamera.transform.position.y, -10);
+                }
             }
-        }
 
 
-        if (target.position.y < minOffset.y) {
-            thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, thisCamera.transform.position.y + (target.transform.position.y - minOffset.y), -10);
-            if (thisCamera.transform.position.y < min.y) {
-                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, min.y, -10);
+            if (target.position.y < minOffset.y) {
+                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, thisCamera.transform.position.y + (target.transform.position.y - minOffset.y), -10);
+                if (thisCamera.transform.position.y < min.y) {
+                    thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, min.y, -10);
+                }
             }
-        }
 
-        if (target.position.y > minOffset.y) {
-            thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, thisCamera.transform.position.y + (target.transform.position.y - minOffset.y), -10);
-            if (thisCamera.transform.position.y > max.y) {
-                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, max.y, -10);
+            if (target.position.y > minOffset.y) {
+                thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, thisCamera.transform.position.y + (target.transform.position.y - minOffset.y), -10);
+                if (thisCamera.transform.position.y > max.y) {
+                    thisCamera.transform.position = new Vector3(thisCamera.transform.position.x, max.y, -10);
+                }
             }
         }
 
@@ -132,7 +138,6 @@ public class BeeCamera : CameraMovement {
             Debug.Log(thisCamera.pixelWidth);
         }
     }
-
     IEnumerator ZoomOut() {
         while (thisCamera.orthographicSize <= zoomOutSize) {
             if (thisCamera.enabled) {
@@ -141,11 +146,13 @@ public class BeeCamera : CameraMovement {
                     Inventory.invInstance.GetComponent<SpriteRenderer>().enabled = false;
                     //Inventory.invInstance.transform.localScale = new Vector3(Inventory.invInstance.transform.localScale.x + 0.01f, Inventory.invInstance.transform.localScale.y + 0.01f, Inventory.invInstance.transform.localScale.z);
                 }
+                thisCamera.transform.position = Vector3.MoveTowards(thisCamera.transform.position, center, 1.2f * Time.deltaTime);
                 thisCamera.orthographicSize += zoomOutSpeed;
                 forceCameraBorder();
             }
             yield return 0;
         }
+        followTarget = true;
         if (thisCamera.orthographicSize >= zoomOutSize && !hasScaled) {
             float newScale = (width / originalWidth);
             Inventory.invInstance.transform.localScale = new Vector3(Inventory.invInstance.transform.localScale.x * newScale - 0.01f, Inventory.invInstance.transform.localScale.y * newScale, transform.localScale.z);
