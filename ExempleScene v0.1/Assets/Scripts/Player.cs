@@ -13,7 +13,6 @@ public class Player : MonoBehaviour {
     public Pathfinding pathfinding;
     //Hur långt ifrån kameran objektet är (Till för att positionen ska hamna rätt från skärm till världen)
     public float distance = 0f;
-    public Animation animation;
     public Animator anim;
     float interval = 0.2f;
     float nextTime = 0;
@@ -25,6 +24,8 @@ public class Player : MonoBehaviour {
     private GameObject interactedObject;
     private bool canMove = true;
     private Vector3 targetPosition = Vector3.zero;
+
+    public string currentRoom;
 
     void Start() {
         DontDestroyOnLoad(this.gameObject);

@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class ShedCamera : CameraMovement {
-    private Camera thisCamera;
+   
     private Vector2 max;
     private Vector2 min;
     private float cameraMove = 1f;
@@ -10,8 +10,7 @@ public class ShedCamera : CameraMovement {
     private float cameraTrigger = 33f;
     public float zoomOutSize = 7f;
     Vector3 bottomLeft;
-    float height;
-    float width;
+    
     float originalHeight;
     float originalWidth;
     private bool hasScaled = false;

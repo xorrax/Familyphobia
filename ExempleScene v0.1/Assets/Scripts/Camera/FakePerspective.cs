@@ -10,13 +10,12 @@ public class FakePerspective : MonoBehaviour {
     float height;
     public float depth;
     public float depthOffset;
-    float maxY;
-    float minY;
 
 
 	void Start () {
         thisObject = GetComponent<Transform>();
         startScale = thisObject.localScale;
+        if (thisObject.GetComponent<Movement>() != null)
         startSpeed = thisObject.gameObject.GetComponent<Movement>().getSpeed();
 	}
 	void Update () {
@@ -27,6 +26,7 @@ public class FakePerspective : MonoBehaviour {
 
 
                 thisObject.localScale = new Vector3(newScale, newScale, thisObject.localScale.z);
+                if(thisObject.GetComponent<Movement>() != null)
                 thisObject.GetComponent<Movement>().setSpeed(newSpeed);
             }
         //}

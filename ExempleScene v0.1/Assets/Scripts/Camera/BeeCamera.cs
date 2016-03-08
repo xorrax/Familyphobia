@@ -3,18 +3,14 @@ using UnityEngine;
 using System.Collections;
 
 public class BeeCamera : CameraMovement {
-    private Camera thisCamera;
     private Vector2 max;
     private Vector2 min;
-    private float cameraMove = 1f;
     public float zoomOutSpeed = 0.05f;
     public float offSet = 14;
     public float zoomOutSize = 5.35f;
     Vector3 bottomLeft;
     Vector2 bottomRight;
     Vector3 center;
-    float height;
-    float width;
     float originalHeight;
     float originalWidth;
     private bool hasScaled = false;

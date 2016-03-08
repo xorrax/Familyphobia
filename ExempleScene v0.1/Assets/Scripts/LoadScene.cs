@@ -13,6 +13,7 @@ public class LoadScene : MonoBehaviour{
 
     void Start() {
         SharedVariables.NewRoom = nextRoom;
+        GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().currentRoom = nextRoom;
         NextScene(nextScene, nextRoom);
     }
 }

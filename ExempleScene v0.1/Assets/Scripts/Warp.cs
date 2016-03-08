@@ -42,6 +42,8 @@ public class Warp : MonoBehaviour {
                 newBackground.GetComponent<Grid>().gameObject.SetActive(true);
                 player.pathfinding.setGrid(newBackground);
                 player.transform.position = warpTo.transform.position;
+                player.currentRoom = newRoom;
+                GameObject.Find("BekNpc").GetComponent<Bek>().updateSpawnPoints();
                 player.gameObject.GetComponent<FakePerspective>().setStartScale(new Vector3(newScale, newScale, player.transform.localScale.z));
                 player.gameObject.GetComponent<FakePerspective>().depth = newDepth;
                 player.gameObject.GetComponent<FakePerspective>().depthOffset = newDepthOffset;

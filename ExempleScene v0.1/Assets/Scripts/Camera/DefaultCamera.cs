@@ -2,12 +2,9 @@
 using System.Collections;
 
 public class DefaultCamera : CameraMovement {
-    private Camera thisCamera;
     private Vector2 max;
     private Vector2 min;
     Vector3 bottomLeft;
-    float height;
-    float width;
     Vector2 minOffset;
     Vector2 maxOffset;
     public float offSet = 14;
