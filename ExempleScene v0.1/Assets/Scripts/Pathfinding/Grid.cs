@@ -30,7 +30,7 @@ public class Grid : MonoBehaviour {
         for (int x = 0; x < gridSizeX; x++){
             for (int y = 0; y < gridSizeY; y++){
                 Vector3 worldPoint = new Vector3(bottomLeft.x + (x * gridBoxSize.x), bottomLeft.y + (y * gridBoxSize.y), 0);
-                Vector3 castOrigin = new Vector3(worldPoint.x, worldPoint.y, -2);
+                Vector3 castOrigin = new Vector3(worldPoint.x, worldPoint.y, -5);
                 Ray ray = new Ray(castOrigin, Vector3.forward);
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit)){
