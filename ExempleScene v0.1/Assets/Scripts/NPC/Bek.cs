@@ -31,6 +31,7 @@ public class Bek : NPC {
     }
 
     void Update() {
+
         if (thisPerspective != player.GetComponent<FakePerspective>()) {
             thisPerspective.depth = player.GetComponent<FakePerspective>().depth;
             thisPerspective.depthOffset = player.GetComponent<FakePerspective>().depthOffset;
@@ -39,12 +40,21 @@ public class Bek : NPC {
         if(Camera.main != null)
         thisCamera = Camera.main.GetComponent<CameraMovement>();
 
-        if (!thisCamera.isSeenByCamera(bek)) {
-            if (readyToMove)
-                bek.transform.position = getNewPosition();
-        } else
-            readyToMove = true;
 
+        if (SharedVariables.NewScene == "Level01") {
+
+
+        } else if (SharedVariables.NewScene == "Dreamworld_Level01" && SharedVariables.FirstTimeDreamworld) {
+            bek.transform.position = GameObject.Find("FirstSpawn").transform.position;
+        }
+
+        if (!thisCamera.isSeenByCamera(bek)) {
+            if (readyToMove){
+                bek.transform.position = getNewPosition();
+            }
+        } else{
+            readyToMove = true;
+        }
 
     }
 

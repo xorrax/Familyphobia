@@ -5,6 +5,7 @@ public class SharedVariables : MonoBehaviour {
     private static string newRoom;
     private static string newScene;
     private static bool outFromDreamworld;
+    private static bool firstTimeDreamworld;
 
     public static bool OutFromDreamworld {
         set {
@@ -29,6 +30,14 @@ public class SharedVariables : MonoBehaviour {
         }
         get {
             return newScene;
+        }
+    }
+    public static bool FirstTimeDreamworld {
+        set {
+            firstTimeDreamworld = value;
+        }
+        get {
+            return firstTimeDreamworld;
         }
     }
 }

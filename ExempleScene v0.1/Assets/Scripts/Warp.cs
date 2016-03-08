@@ -14,6 +14,7 @@ public class Warp : MonoBehaviour {
     public Color color;
     public Sprite warpBlock;
     public AudioClip warpSound;
+    public AudioClip newFootsteps;
     public float fadeValue = 0.05f;
     public Texture2D cursorTexture;
     private AudioSource audioSource;
@@ -48,6 +49,7 @@ public class Warp : MonoBehaviour {
                 player.gameObject.GetComponent<FakePerspective>().setStartScale(new Vector3(newScale, newScale, player.transform.localScale.z));
                 player.gameObject.GetComponent<FakePerspective>().depth = newDepth;
                 player.gameObject.GetComponent<FakePerspective>().depthOffset = newDepthOffset;
+                player.GetComponent<Footsteps>().soundEffect = newFootsteps;
                 player.pathfinding.endPathfinding();
 
 
