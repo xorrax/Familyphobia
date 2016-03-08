@@ -37,6 +37,10 @@ public class Pathfinding : MonoBehaviour
         grid = newBackground.GetComponent<Grid>();
     }
 
+    public void refreshGrid() {
+        grid.createGrid();
+    }
+
     public string getGridBackground() {
         if (grid.gameObject.name != null) {
             return grid.gameObject.name;

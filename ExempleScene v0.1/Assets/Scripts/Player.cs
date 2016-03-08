@@ -52,8 +52,13 @@ public class Player : MonoBehaviour {
         }
     }
 
+    void refreshGrid() {
+        pathfinding.refreshGrid();
+    }
+
     // Update is called once per frame
     void Update() {
+        pathfinding.refreshGrid();
         if (Input.GetKeyDown("space")) {
             anim.Play("Fishing");
             anim.Play("Idle");
