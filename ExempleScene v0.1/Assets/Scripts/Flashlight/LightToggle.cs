@@ -2,10 +2,10 @@
 using System.Collections;
 public class LightToggle : MonoBehaviour {
     public GameObject flashLightSprite;
-    bool räka = false; //Skåda detta majestätiska djur. Löste alla våra problem!
+    bool räka = true; //Skåda detta majestätiska djur. Löste alla våra problem!
 
-    void Start() {
-        flashLightSprite = GameObject.Find("Flashlight");
+    void Awake() {
+        flashLightSprite.SetActive(false);
     }
     public void toggleLight() {
         if (räka == false) {
