@@ -34,6 +34,7 @@ public class RoomLighter : MonoBehaviour {
         livingCouchRenderer = GameObject.Find("Livingroom_Couch").GetComponent<SpriteRenderer>();
         livingTableRenderer = GameObject.Find("Livingroom_Table").GetComponent<SpriteRenderer>();
         livingRenderer = GameObject.Find("Livingroom_Background").GetComponent<SpriteRenderer>();
+        kitchenRenderer = GameObject.Find("Kitchen_Background").GetComponent<SpriteRenderer>();
     }
 
     public void switchKitchenBool() {
