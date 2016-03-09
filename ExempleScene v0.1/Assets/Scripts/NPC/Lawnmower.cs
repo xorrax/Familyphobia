@@ -49,7 +49,7 @@ public class Lawnmower : MonoBehaviour {
             warpFade.transform.position = this.transform.position;
             warpFade.transform.position = new Vector3(warpFade.transform.position.x, warpFade.transform.position.y, warpFade.transform.position.z + 1f);
             warpFade.GetComponent<SpriteRenderer>().sortingOrder = 1000;
-            warpFade.transform.localScale += new Vector3(100 * transform.localScale.x, 100 * transform.localScale.y, transform.localScale.z);
+            warpFade.transform.localScale += new Vector3(200 * transform.localScale.x, 100 * transform.localScale.y, transform.localScale.z);
 
             StartCoroutine("FadeIn");
         }

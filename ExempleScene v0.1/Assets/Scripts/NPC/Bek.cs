@@ -42,19 +42,27 @@ public class Bek : NPC {
 
 
         if (SharedVariables.NewScene == "Level01") {
-
+            if (!thisCamera.isSeenByCamera(bek)) {
+                if (readyToMove) {
+                    bek.transform.position = getNewPosition();
+                }
+            } else {
+                readyToMove = true;
+            }
 
         } else if (SharedVariables.NewScene == "Dreamworld_Level01" && SharedVariables.FirstTimeDreamworld) {
             bek.transform.position = GameObject.Find("FirstSpawn").transform.position;
+        } else {
+            if (!thisCamera.isSeenByCamera(bek)) {
+                if (readyToMove) {
+                    bek.transform.position = getNewPosition();
+                }
+            } else {
+                readyToMove = true;
+            }
         }
 
-        if (!thisCamera.isSeenByCamera(bek)) {
-            if (readyToMove){
-                bek.transform.position = getNewPosition();
-            }
-        } else{
-            readyToMove = true;
-        }
+        
 
     }
 
