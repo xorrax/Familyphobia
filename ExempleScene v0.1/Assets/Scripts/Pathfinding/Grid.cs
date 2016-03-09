@@ -88,7 +88,7 @@ public class Grid : MonoBehaviour {
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, 1));
         if (grid != null){
             foreach (Node n in grid){
-                Gizmos.color = (n.walkable) ? Color.green : Color.red;
+                Gizmos.color = (n.walkable) ? Color.blue : Color.yellow;
                 if (path != null)
                     if (path.Contains(n))
                         Gizmos.color = Color.black;
