@@ -17,8 +17,8 @@ public class DialogueReader : MonoBehaviour {
     private int playerChoice;
     private float ySpacing;
     Dialogue dialogue;
-    Color cJack, cBek, cLinda;
-    public static Animator aJack, aBek, aLinda;
+    Color cJack, cBek, cLinda, cBee, cShannon;
+    public static Animator aJack, aBek, aLinda, aBee;
 
     private Pathfinding pf;
     private Vector3 prewPlayerPos;
@@ -44,12 +44,19 @@ public class DialogueReader : MonoBehaviour {
                 aBek = GameObject.Find("Bek").GetComponent<Animator>();
                 Debug.Log("Bek Not NUll");
             }
+            if (GameObject.Find("Bee")/*.GetComponent<Animator>()*/ != null) {
+                aBee = GameObject.Find("Bee").GetComponent<Animator>();
+                Debug.Log("Bee Not NUll");
+            }
 
             padding.x = 20;
             fixedPosition = false;
             cJack = new Vector4(0.278f, 0.419f, 0.259f, 1);
             cBek = new Vector4(0.835f, 0.71f, 0.643f, 1);
             cLinda = new Vector4(0.988f, 0.459f, 0, 1);
+            cBee = new Vector4(0.796f, 0.847f, 0.055f, 1);
+            cShannon = new Vector4(0.420f, 0.450f, 0.714f, 1);
+
             pf = aJack.GetComponent<Pathfinding>();
             // audioSource = gameObject.GetComponent<AudioSource>();
             audioSource = GameObject.Find("Dialouge").GetComponent<AudioSource>();
@@ -184,7 +191,32 @@ public class DialogueReader : MonoBehaviour {
                    
                 }
             }
-        } else {
+        } else if (current.name == "Shannon") {
+            style.normal.textColor = cShannon;
+           // if (aShannon != null) {
+                if (audioSource.clip != null) {
+                    if (!test.done) {
+                        //test.anim = aShannon;
+                        test.time = audioSource.clip.length;
+                        StartCoroutine("playAnimation", test);
+                    }
+
+                }
+           // }
+        } else if (current.name == "Bee") {
+            style.normal.textColor = cBee;
+            if (aBee != null) {
+                if (audioSource.clip != null) {
+                    if (!test.done) {
+                        test.anim = aBee;
+                        test.time = audioSource.clip.length;
+                        StartCoroutine("playAnimation", test);
+                    }
+
+                }
+            }
+        } 
+        else {
             style.normal.textColor = Color.white;
         }
 
