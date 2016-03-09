@@ -3,9 +3,10 @@ using System.Collections;
 
 public class Stol : MonoBehaviour {
 
-    public GameObject cupcake;
-    public GameObject linda;
     public Sprite sprite;
+    public string key;
+    public string cupcake;
+
 
     public float goalDistance;
     public Vector3 pathfindingPos;
@@ -14,7 +15,6 @@ public class Stol : MonoBehaviour {
     private bool onGoal = false;
 
     void Start(){
-        cupcake.SendMessage("SetGoalDistance", goalDistance);
         player = GameObject.Find("Jack");
     }
 
@@ -22,7 +22,7 @@ public class Stol : MonoBehaviour {
     {
         if(onGoal && Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
         {
-            linda.SendMessage("IsDistracted", true);
+            GameObject.Find(key).SendMessage("LindaDistracted", true);
             gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
             player.SendMessage("CanWalk", true);
         }
@@ -33,11 +33,25 @@ public class Stol : MonoBehaviour {
 
     void OnTriggerStay(Collider col){
 
-        if (col.name == cupcake.name && !Input.GetMouseButton(0))
+        if (col.name == cupcake && Input.GetMouseButton(0))
         {
             if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
             {
-                linda.SendMessage("IsDistracted", true);
+                GameObject.Find(key).SendMessage("LindaDistracted", true);
+                gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
+                player.SendMessage("CanWalk", true);
+            }
+            else
+            {
+                player.SendMessage("SetTargetPos", pathfindingPos);
+                onGoal = true;
+            }
+        }
+        else if(col.name == cupcake && Input.GetMouseButtonUp(0))
+        {
+            if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
+            {
+                GameObject.Find(key).SendMessage("LindaDistracted", true);
                 gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
                 player.SendMessage("CanWalk", true);
             }

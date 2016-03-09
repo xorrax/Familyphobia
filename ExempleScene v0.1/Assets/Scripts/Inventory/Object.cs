@@ -6,14 +6,15 @@ public class Object : MonoBehaviour
 {
 
     public Sprite resultSprite;
-    public GameObject combinationObject;
-    public GameObject goalObject;
+    //public GameObject combinationObject;
+    //public GameObject goalObject;
     public Vector3 pathfindingPos;
     public bool mainObject;
     public string comboName;
     public string goalName;
     public float clickDistance;
     public bool locked;
+    public bool warp;
     //Sound
     public AudioClip lightSound;
     public AudioClip mediumSound;
@@ -32,7 +33,10 @@ public class Object : MonoBehaviour
     private bool mouseOutside = true;
     private bool onGoal = false;
     private bool scaled = false;
-    private float goalDistance = 0f;
+    private bool clickMove = false;
+    private bool dragging = false;
+    private float clickTimer = 0f;
+    public float goalDistance;
     private enum invState
     {
         DRAGGING,  //..
@@ -47,15 +51,7 @@ public class Object : MonoBehaviour
 
     void Start()
     {
-        if (comboName != string.Empty)
-            combinationObject = GameObject.Find(comboName);
-
-        if (goalName != string.Empty)
-            goalObject = GameObject.Find(goalName);
-
-        originalColor = this.gameObject.GetComponent<Renderer>().material.color;
-
-        if (combinationObject == null)
+        if(comboName == string.Empty)
             hasCombined = true;
 
         player = GameObject.FindGameObjectWithTag("Player");
@@ -66,33 +62,10 @@ public class Object : MonoBehaviour
             gameObject.GetComponent<AudioSource>().clip = mediumSound;
         else if (gameObject.GetComponent<Rigidbody>().mass == 3)
             gameObject.GetComponent<AudioSource>().clip = heavySound;
-
-        //if (goalObject != null)
-        //    goalObject.SendMessage("SetGoalPathfindingPos", pathfindingPos);
-    }
-
-    void OnLevelWasLoaded()
-    {
-        if (SceneManager.GetActiveScene().name == "Dreamworld_Level01" && tag == "ItemWarp")
-        {
-            if (goalName != string.Empty)
-                goalObject = GameObject.Find(goalName);
-            if (comboName != string.Empty)
-                combinationObject = GameObject.Find(comboName);
-        }
     }
 
     void Update()
     {
-        if (combinationObject != null)
-        {
-            if (combinationObject.activeSelf)
-            {
-                combinationObject.SendMessage("OtherState", (int)myState);
-                combinationObject.SendMessage("OtherDragging", myDragging);
-            }
-        }
-
         if (clicked && Vector3.Distance(player.transform.position, transform.position) <= clickDistance && !locked)
         {
             if (scaled)
@@ -107,17 +80,18 @@ public class Object : MonoBehaviour
             
         }
 
-        if (onGoal && Vector3.Distance(player.transform.position, goalObject.transform.position) <= goalDistance)
+        if (onGoal && Vector3.Distance(player.transform.position, GameObject.Find(goalName).transform.position) <= goalDistance)
         {
             onGoal = false;
-            if (combinationObject == null)
+            if (comboName == string.Empty)
             {
                 if (!Input.GetMouseButton(0))
                 {
                     myState = invState.COMBINATION;
                     Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                    Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                    Inventory.invInstance.SendMessage("SetPositions");
                     this.gameObject.SetActive(false);
+                    GameObject.Find(goalName).SendMessage("Goal");
                 }
             }
             else if (hasCombined)
@@ -126,8 +100,9 @@ public class Object : MonoBehaviour
                 {
                     myState = invState.COMBINATION;
                     Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                    Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                    Inventory.invInstance.SendMessage("SetPositions");
                     this.gameObject.SetActive(false);
+                    GameObject.Find(goalName).SendMessage("Goal");
                 }
             }
         }
@@ -143,6 +118,16 @@ public class Object : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (clickMove)
+        {
+            clickTimer += Time.deltaTime;
+            if(clickTimer >= 0.5f)
+            {
+                clickMove = false;
+                clickTimer = 0;
+            }
+        }
+
         if (myDragging && myState != invState.SLEEPING)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -153,64 +138,128 @@ public class Object : MonoBehaviour
 
     void OnTriggerStay(Collider col)
     {
-
-        if (combinationObject != null && combinationObject.gameObject.activeSelf && col.gameObject.name == combinationObject.name && !locked
-            && myState != invState.SLEEPING && otherState != invState.SLEEPING)
+        if (dragging)
         {
-            myState = invState.COMBINATION;
-            if (!myDragging && !otherDragging)
+            if(!Input.GetMouseButtonUp(0))
             {
-                if (mainObject)
+                if (col.gameObject.activeSelf && col.gameObject.name == comboName && !locked
+                    && myState != invState.SLEEPING && otherState != invState.SLEEPING)
                 {
-                    this.gameObject.GetComponent<SpriteRenderer>().sprite = resultSprite;
-                    myState = invState.INVENTORY;
-                    hasCombined = true;
+                    myState = invState.COMBINATION;
+                    if (!myDragging && !otherDragging)
+                    {
+                        if (mainObject)
+                        {
+                            this.gameObject.GetComponent<SpriteRenderer>().sprite = resultSprite;
+                            myState = invState.INVENTORY;
+                            hasCombined = true;
+                        }
+                        else
+                        {
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            myState = invState.INVENTORY;
+                            this.gameObject.SetActive(false);
+                        }
+                        myState = invState.INVENTORY;
+
+                    }
+                }
+            }
+            else if (col.gameObject.activeSelf && col.gameObject.name == goalName && !locked)
+            {
+                if (Vector3.Distance(transform.position, col.transform.position) <= goalDistance)
+                {
+                    if (comboName == string.Empty)
+                    {
+                        if (!Input.GetMouseButtonUp(0))
+                        {
+                            myState = invState.COMBINATION;
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            player.SendMessage("CanWalk", true);
+                            this.gameObject.SetActive(false);
+                            onGoal = false;
+                        }
+                    }
+                    else if (hasCombined)
+                    {
+                        if (!Input.GetMouseButtonUp(0))
+                        {
+                            myState = invState.COMBINATION;
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            player.SendMessage("CanWalk", true);
+                            this.gameObject.SetActive(false);
+                            onGoal = false;
+                        }
+                    }
                 }
                 else
                 {
-                    Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                    Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
-                    myState = invState.INVENTORY;
-                    this.gameObject.SetActive(false);
+                    onGoal = true;
+                    player.SendMessage("SetTargetPos", goalPathfindingPos);
                 }
-                myState = invState.INVENTORY;
-
             }
         }
-        else if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name && !locked)
+        else
         {
-            if (Vector3.Distance(transform.position, col.transform.position) <= goalDistance)
+            if (Input.GetMouseButton(0))
             {
-                if (combinationObject == null)
+                if (col.gameObject.activeSelf && col.gameObject.name == comboName && !locked
+                    && myState != invState.SLEEPING && otherState != invState.SLEEPING)
                 {
-                    if (!Input.GetMouseButton(0))
+                    myState = invState.COMBINATION;
+                    if (!myDragging && !otherDragging)
                     {
-                        myState = invState.COMBINATION;
-                        Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                        Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
-                        player.SendMessage("CanWalk", true);
-                        this.gameObject.SetActive(false);
+                        if (mainObject)
+                        {
+                            this.gameObject.GetComponent<SpriteRenderer>().sprite = resultSprite;
+                            myState = invState.INVENTORY;
+                            hasCombined = true;
+                        }
+                        else
+                        {
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            myState = invState.INVENTORY;
+                            this.gameObject.SetActive(false);
+                        }
+                        myState = invState.INVENTORY;
+
                     }
                 }
-                else if (hasCombined)
+                else if (col.gameObject.activeSelf && col.gameObject.name == goalName && !locked)
                 {
-                    if (!Input.GetMouseButton(0))
+                    if (Vector3.Distance(transform.position, col.transform.position) <= goalDistance)
                     {
-                        myState = invState.COMBINATION;
-                        Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                        Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
-                        player.SendMessage("CanWalk", true);
-                        this.gameObject.SetActive(false);
+                        if (comboName == string.Empty)
+                        {
+                            myState = invState.COMBINATION;
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            player.SendMessage("CanWalk", true);
+                            this.gameObject.SetActive(false);
+                            onGoal = false;
+                        }
+                        else if (hasCombined)
+                        {
+                            myState = invState.COMBINATION;
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            player.SendMessage("CanWalk", true);
+                            this.gameObject.SetActive(false);
+                            onGoal = false;
+                        }
+                    }
+                    else
+                    {
+                        onGoal = true;
+                        player.SendMessage("SetTargetPos", goalPathfindingPos);
                     }
                 }
-            }
-            else
-            {
-                onGoal = true;
-                player.SendMessage("SetTargetPos", goalPathfindingPos);
             }
         }
-
 
         if (col.name == "Inventory" && myState != invState.INVENTORY)
         {
@@ -225,7 +274,6 @@ public class Object : MonoBehaviour
             Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
             Inventory.invInstance.SendMessage("SetPositions");
             myState = invState.DRAGGING;
-            Debug.Log(gameObject.name + " exit inv");
         }
     }
 
@@ -283,66 +331,80 @@ public class Object : MonoBehaviour
     void OnMouseDown()
     {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        myDragging = true;
+        if (!myDragging && !Inventory.invInstance.holdingItem && myState != invState.SLEEPING)
+        {
+            myDragging = true;
+            clickMove = true;
+            dragging = true;
+            Inventory.invInstance.holdingItem = true;
+            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+            Inventory.invInstance.SendMessage("SetPositions");
+        }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
         player.SendMessage("CanWalk", false);
     }
 
     void OnMouseUp()
     {
-        myDragging = false;
-
-        if (myState == invState.SLEEPING && !locked)
+        if (clickMove &&  myState != invState.SLEEPING)
         {
-            if (Vector3.Distance(player.transform.position, gameObject.transform.position) <= clickDistance)
+            myDragging = true;
+            clickMove = false;
+            clickTimer = 0;
+            dragging = false;
+            Inventory.invInstance.holdingItem = true;
+        }
+        else
+        {
+            
+            if (myDragging)
             {
-                if (scaled)
+                Inventory.invInstance.holdingItem = false;
+            }
+
+            myDragging = false;
+
+            if (myState == invState.SLEEPING && !locked)
+            {
+                if (Vector3.Distance(player.transform.position, gameObject.transform.position) <= clickDistance)
                 {
-                    scaled = false;
-                    gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                    if (scaled)
+                    {
+                        scaled = false;
+                        gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                    }
+
+                    Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                    myState = invState.INVENTORY;
+                    gameObject.GetComponent<AudioSource>().Play();
                 }
-
-                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-                myState = invState.INVENTORY;
-                gameObject.GetComponent<AudioSource>().Play();
+                else
+                {
+                    clicked = true;
+                    player.SendMessage("SetTargetPos", pathfindingPos);
+                }
             }
-            else
+            else if (myState == invState.COMBINATION)
             {
-                clicked = true;
-                player.SendMessage("SetTargetPos", pathfindingPos);
+                StartCoroutine(wait());
             }
-        }
-        else if (myState == invState.COMBINATION)
-        {
-            StartCoroutine(wait());
-        }
-        else if (myState == invState.INVENTORY)
-        {
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-            this.gameObject.transform.position = myPos;
-        }
-        else if (myState == invState.DRAGGING)
-        {
-            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-            Inventory.invInstance.SendMessage("AddItem", this.gameObject);
-            myState = invState.INVENTORY;
-        }
-        this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
+            else if (myState == invState.INVENTORY)
+            {
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                this.gameObject.transform.position = myPos;
+            }
+            else if (myState == invState.DRAGGING)
+            {
+                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
+                myState = invState.INVENTORY;
+            }
+            this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
 
-        player.SendMessage("CanWalk", true);
-        clicked = true;
-    }
-
-    void Warp(string level)
-    {
-        if (level == "Dreamworld_Level01")
-        {
-            if (goalObject == null)
-                goalObject = GameObject.Find(goalName);
-
-            if (combinationObject == null)
-                combinationObject = GameObject.Find(comboName);
+            player.SendMessage("CanWalk", true);
+            clicked = true;
         }
     }
     IEnumerator wait()
