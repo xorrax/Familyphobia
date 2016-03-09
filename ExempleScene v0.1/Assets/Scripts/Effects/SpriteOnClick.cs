@@ -2,31 +2,30 @@
 using System.Collections;
 
 public class SpriteOnClick : MonoBehaviour {
-    public Sprite nextSprite;
-    public Sprite firstSprite;
-    SpriteRenderer renderer;
+    public Sprite secondSprite;
+    Sprite firstSprite;
+    SpriteRenderer rendering;
     private AudioSource audioSource;
     public AudioClip soundEffectOpen;
+    public AudioClip soundEffectClose;
     private BoxCollider boxCollider;
-    //public AudioClip soundEffectClose;
     void Start() {
-        renderer = this.gameObject.GetComponent<SpriteRenderer>();
+        rendering = this.gameObject.GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
         boxCollider = this.gameObject.GetComponent<BoxCollider>();
-        firstSprite = renderer.sprite;
+        firstSprite = rendering.sprite;
     }
 
     void spriteOnClick() {
-        if (renderer.sprite != nextSprite) {
-            renderer.sprite = nextSprite;
+        if (rendering.sprite != secondSprite) {
+            rendering.sprite = secondSprite;
             boxCollider.center = new Vector3(boxCollider.center.x + 2, boxCollider.center.y, boxCollider.center.z);
-            //audioSource.clip = soundEffectOpen;
+            audioSource.clip = soundEffectOpen;
         } else {
-            renderer.sprite = firstSprite;
+            rendering.sprite = firstSprite;
             boxCollider.center = new Vector3(boxCollider.center.x - 2, boxCollider.center.y, boxCollider.center.z);
-            //audioSource.clip = soundEffectClose;
+            audioSource.clip = soundEffectClose;
         }
-        audioSource.clip = soundEffectOpen;
         audioSource.Play();
     }
 
