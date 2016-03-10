@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FlowerDialogue : NPC {
-    public GameObject secondDialogue;
+public class FirstTimeBeeRoom : NPC {
 
-    void Start() {
+    // Use this for initialization
+    void OnLevelWasLoaded() {
         gameObject.AddComponent<NPC>();
         gameObject.GetComponent<NPC>().self = this;
     }
@@ -12,12 +12,7 @@ public class FlowerDialogue : NPC {
     public override void interact() {
         if (gameObject.GetComponent<DialogueReader>() != null) {
             gameObject.GetComponent<DialogueReader>().enabled = true;
+            SharedVariables.firstTimeBeeRoom = false;
         }
     }
-
-    void setDialogue() {
-        Debug.Log("Change dialogue");
-        gameObject.GetComponent<DialogueReader>().dialogueIn = secondDialogue;
-    }
-
 }

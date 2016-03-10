@@ -44,6 +44,9 @@ public class Grid : MonoBehaviour {
                     if (hit.collider.tag == "warp") {
                         walkable = true;
                     }
+                    if (hit.collider.tag == "warpInter") {
+                        walkable = true;
+                    }
                 }
                 else{
                     walkable = false;

@@ -6,6 +6,7 @@ public class Warp : MonoBehaviour {
     public float newScale = 0.5f;
     public float newDepth = 1f;
     public float newDepthOffset;
+    public bool activated = true;
     private bool clicked = false;
     private Player player;
     private Transform warpTo;
@@ -73,6 +74,13 @@ public class Warp : MonoBehaviour {
             if (alpha <= 0) {
                 GameObject.Destroy(warpFade);
                 player.pathfinding.setIsActive(true);
+                if (SharedVariables.firstTimeBeeRoom && newRoom == "Birthday") {
+                    GameObject.Find("FirstTimeBeeRoom").GetComponent<NPC>().interact();
+                }
+
+                if (SharedVariables.firstTimeShedToEntrance && currentRoom == "Shed" && newRoom == "Entrance") {
+                    GameObject.Find("FirstTimeShedToEntrance").GetComponent<NPC>().interact();
+                }
                 StopCoroutine("FadeOut");
             }
             yield return null;

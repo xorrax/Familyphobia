@@ -32,6 +32,7 @@ public class Key : MonoBehaviour
     private bool lindaDistracted = false;
     private bool lastLindaDistraced = true;
     private bool clickMove = false;
+    private bool dragging = false;
     private float clickTimer = 0f;
 
     private enum invState
@@ -131,64 +132,117 @@ public class Key : MonoBehaviour
 
     void OnTriggerStay(Collider col)
     {
-        if (combinationObject != null && col.gameObject.name == combinationObject.name && !Input.GetMouseButton(0))
+        if (dragging)
         {
-            if (Vector3.Distance(player.transform.position, pathfindingPos) <= 0.5f)
+            if (combinationObject != null && col.gameObject.name == combinationObject.name && Input.GetMouseButtonUp(0))
             {
-                if (hasWorm)
+                if (Vector3.Distance(player.transform.position, pathfindingPos) <= 0.5f)
                 {
-                    linda.SendMessage("HasWorm");
-                }
-                else if (!hasWorm && lindaDistracted)
-                {
-                    if (scaled)
+                    if (!hasWorm && lindaDistracted)
                     {
-                        scaled = false;
-                        gameObject.transform.localScale = new Vector3(1f, 1f, 1);
-                    }
-                    player.SendMessage("FishAnimation");
-                    player.SendMessage("CanWalk", true);
-                    Inventory.invInstance.SendMessage("AddItem", gameObject);
-                    myState = invState.INVENTORY;
-                    Inventory.invInstance.SendMessage("RemoveItem", combinationObject);
-                    Inventory.invInstance.SendMessage("SetPositions");
-                    pickedUp = true;
-                    combinationObject.SetActive(false);
-                }
-            }
-            else
-            {
-                player.SendMessage("SetTargetPos", pathfindingPos);
-                onCombine = true;
-            }
-        }
-        else if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name)
-        {
-            myState = invState.COMBINATION;
-            if (!Input.GetMouseButton(0))
-            {
-                if (Vector3.Distance(player.transform.position, col.transform.position) < goalDistance)
-                {
-                    if (combinationObject == null && otherComboObject == null)
-                    {
-                        
-                        Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                        Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
-                        Debug.Log("key on goal");
-                        this.gameObject.SetActive(false);
-                        //DO stuff!!
-                        //!     Skriv kod här.. gå till bi pussel
-                        //! 
+                        if (scaled)
+                        {
+                            scaled = false;
+                            gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                        }
+                        player.SendMessage("FishAnimation");
+                        player.SendMessage("CanWalk", true);
+                        Inventory.invInstance.SendMessage("AddItem", gameObject);
+                        myState = invState.INVENTORY;
+                        Inventory.invInstance.SendMessage("RemoveItem", combinationObject);
+                        Inventory.invInstance.SendMessage("SetPositions");
+                        pickedUp = true;
+                        combinationObject.SetActive(false);
                     }
                 }
                 else
                 {
-                    onGoal = true;
-                    player.SendMessage("SetTargetPos", goalPathfindingPos);
+                    player.SendMessage("SetTargetPos", pathfindingPos);
+                    onCombine = true;
+                }
+            }
+            else if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name)
+            {
+                myState = invState.COMBINATION;
+                if (Input.GetMouseButtonUp(0))
+                {
+                    if (Vector3.Distance(player.transform.position, col.transform.position) < goalDistance)
+                    {
+                        if (combinationObject == null && otherComboObject == null)
+                        {
+
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                            Debug.Log("key on goal");
+                            this.gameObject.SetActive(false);
+                            //DO stuff!!
+                            //!     Skriv kod här.. lås upp dörr
+                            //! 
+                        }
+                    }
+                    else
+                    {
+                        onGoal = true;
+                        player.SendMessage("SetTargetPos", goalPathfindingPos);
+                    }
                 }
             }
         }
+        else
+        {   if(Input.GetMouseButton(0))
+            {
+                if (col.gameObject.name == comboName)
+                {
+                    if (Vector3.Distance(player.transform.position, pathfindingPos) <= 0.5f)
+                    {
+                        if (!hasWorm && lindaDistracted)
+                        {
+                            if (scaled)
+                            {
+                                scaled = false;
+                                gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                            }
+                            player.SendMessage("FishAnimation");
+                            player.SendMessage("CanWalk", true);
+                            Inventory.invInstance.SendMessage("AddItem", gameObject);
+                            myState = invState.INVENTORY;
+                            Inventory.invInstance.SendMessage("RemoveItem", combinationObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            pickedUp = true;
+                            combinationObject.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        player.SendMessage("SetTargetPos", pathfindingPos);
+                        onCombine = true;
+                    }
+                }
+                else if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name)
+                {
+                    myState = invState.COMBINATION;
+                    if (Vector3.Distance(player.transform.position, col.transform.position) < goalDistance)
+                    {
+                        if (combinationObject == null && otherComboObject == null)
+                        {
 
+                            Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
+                            Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                            this.gameObject.SetActive(false);
+                            //DO stuff!!
+                            //!     Skriv kod här.. gå till bi pussel
+                            //! 
+                        }
+                    }
+                    else
+                    {
+                        onGoal = true;
+                        player.SendMessage("SetTargetPos", goalPathfindingPos);
+                    }
+                    
+                }
+            }
+        }
 
         if (col.name == invName && myState != invState.INVENTORY)
         {
@@ -210,16 +264,12 @@ public class Key : MonoBehaviour
         hasWorm = value;
     }
 
-    void FishAnimationDone()
-    {
-        
-        Debug.Log("fishing done");
-    }
-
     void LindaDistracted(bool value)
     {
         lindaDistracted = value;
-        combinationObject.SendMessage("LindaDistracted", lindaDistracted);
+        GameObject temp = GameObject.Find(comboName);
+        if(temp != null)
+            temp.SendMessage("LindaDistracted", lindaDistracted);
     }
     void SetPosition(Vector2 pos)
     {
@@ -253,10 +303,12 @@ public class Key : MonoBehaviour
     void OnMouseDown()
     {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        if(!myDragging)
+        if(!myDragging && myState != invState.SLEEPING)
         {
             clickMove = true;
             myDragging = true;
+            dragging = true;
+            Inventory.invInstance.holdingItem = true;
         }
         
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
@@ -265,14 +317,18 @@ public class Key : MonoBehaviour
 
     void OnMouseUp()
     {
-        if (clickMove)
+        if (clickMove && myState != invState.SLEEPING)
         {
             myDragging = true;
             clickMove = false;
             clickTimer = 0f;
+            Inventory.invInstance.holdingItem = true;
         }
         else
         {
+            if (myDragging)
+                Inventory.invInstance.holdingItem = false;
+
             myDragging = false;
 
             if (myState == invState.COMBINATION)
@@ -282,12 +338,14 @@ public class Key : MonoBehaviour
             else if (myState == invState.INVENTORY)
             {
                 this.gameObject.transform.position = myPos;
+                Inventory.invInstance.AddItem(gameObject);
                 Inventory.invInstance.SendMessage("SetPositions");
             }
             else if (myState == invState.DRAGGING)
             {
                 Inventory.invInstance.SendMessage("RemoveItem", gameObject);
                 Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
                 myState = invState.INVENTORY;
             }
             this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;

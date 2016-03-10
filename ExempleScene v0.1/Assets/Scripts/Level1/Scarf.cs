@@ -4,8 +4,6 @@ using System.Collections;
 
 public class Scarf : MonoBehaviour
 {
-    public GameObject lockedObject;
-    public GameObject goalObject;
     public Vector3 pathfindingPos;
     public Vector3 goalPathfindingPos;
     public string goalName;
@@ -29,11 +27,14 @@ public class Scarf : MonoBehaviour
     private bool onGoal = false;
     private bool scaled = false;
     private bool mouseOutside = false;
-    private bool findObjects = false;
     private bool clickMove = false;
+    private bool dragging = false;
+    private bool clickedGoal = false;
     private float clickTimer = 0f;
     private Vector2 myPos = new Vector2();
     private GameObject player;
+    private Vector3 colPos = new Vector3();
+    private GameObject colObject;
     private enum invState
     {
         DRAGGING,  //..
@@ -48,11 +49,11 @@ public class Scarf : MonoBehaviour
 
     void Start()
     {
-        if (goalName != string.Empty)
-            goalObject = GameObject.Find(goalName);
+        //if (goalName != string.Empty)
+        //    goalObject = GameObject.Find(goalName);
 
-        if (lockedName != string.Empty)
-            lockedObject = GameObject.Find(lockedName);
+        //if (lockedName != string.Empty)
+        //    lockedObject = GameObject.Find(lockedName);
 
         originalColor = this.gameObject.GetComponent<Renderer>().material.color;
 
@@ -70,10 +71,10 @@ public class Scarf : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "Dreamworld_Level01")
         {
-            goalObject = GameObject.Find(goalName);
-            lockedObject = GameObject.Find(lockedName);
-            Debug.Log(lockedObject.ToString() + " : " + goalObject.ToString());
-            Debug.Log("warp scarf");
+            //goalObject = GameObject.Find(goalName);
+            //lockedObject = GameObject.Find(lockedName);
+            //Debug.Log(lockedObject.ToString() + " : " + goalObject.ToString());
+            //Debug.Log("warp scarf");
         }
     }
 
@@ -96,23 +97,25 @@ public class Scarf : MonoBehaviour
             }
         }
 
-        if (onGoal && Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
+        if (onGoal && Vector3.Distance(player.transform.position, colObject.transform.position) <= goalDistance)
         {
             myState = invState.COMBINATION;
-            goalObject.GetComponent<SpriteRenderer>().sprite = treeSprite;
             Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
             Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
             onGoal = false;
-            lockedObject.SendMessage("Locked", false);
+            GameObject.Find(lockedName).SendMessage("Locked", false);
             player.SendMessage("CanWalk", true);
             this.gameObject.SetActive(false);
         }
 
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            onGoal = false;
-
-            if(mouseOutside)
+            if (clickedGoal)
+            {
+                onGoal = false;
+                clickedGoal = false;
+            }
+            if (mouseOutside)
                 clicked = false;
         }
     }
@@ -122,7 +125,7 @@ public class Scarf : MonoBehaviour
         if (clickMove)
         {
             clickTimer += Time.deltaTime;
-            if (clickTimer >= 1)
+            if (clickTimer >= 0.5f)
             {
                 clickMove = false;
                 clickTimer = 0;
@@ -139,32 +142,55 @@ public class Scarf : MonoBehaviour
 
     void OnTriggerStay(Collider col)
     {
-        Debug.Log("scarf collision: " + col.name);
-        if (goalObject != null && goalObject.activeSelf && col.gameObject.name == goalObject.name && !Input.GetMouseButton(0))
+        if (dragging)
         {
-            Debug.Log("scarf on tree");
-            myState = invState.COMBINATION;
-            if (Vector3.Distance(player.transform.position, col.transform.position) <= goalDistance)
+            if (col.gameObject.activeSelf && col.gameObject.name == goalName && !Input.GetMouseButton(0))
             {
-                
-                goalObject.GetComponent<SpriteRenderer>().sprite = treeSprite;
-                Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
-                Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
-                lockedObject.SendMessage("Locked", false);
-                player.SendMessage("CanWalk", true);
-                this.gameObject.SetActive(false);
-            }
-            else
-            {
-                onGoal = true;
-                player.SendMessage("SetTargetPos", goalPathfindingPos);
+                myState = invState.COMBINATION;
+                if (Vector3.Distance(player.transform.position, col.transform.position) <= goalDistance)
+                {
+                    col.gameObject.GetComponent<SpriteRenderer>().sprite = treeSprite;
+                    GameObject.Find(lockedName).SendMessage("Locked", false);
+                    player.SendMessage("CanWalk", true);
+                    this.gameObject.SetActive(false);
+                }
+                else
+                {
+                    onGoal = true;
+                    player.SendMessage("SetTargetPos", goalPathfindingPos);
+                    Inventory.invInstance.AddItem(gameObject);
+                    Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                    Inventory.invInstance.holdingItem = false;
+                    myDragging = false;
+                    myState = invState.INVENTORY;
+                    colObject = col.gameObject;
+                }
             }
         }
-
-
-        if (col.name == "Inventory" && myState != invState.INVENTORY)
+        else
         {
-            myState = invState.INVENTORY;
+            if (col.gameObject.name == goalName && Input.GetMouseButton(0))
+            {
+                myState = invState.COMBINATION;
+                if (Vector3.Distance(player.transform.position, col.transform.position) <= goalDistance)
+                {
+                    col.gameObject.GetComponent<SpriteRenderer>().sprite = treeSprite;
+                    GameObject.Find(lockedName).SendMessage("Locked", false);
+                    player.SendMessage("CanWalk", true);
+                    this.gameObject.SetActive(false);
+                }
+                else
+                {
+                    onGoal = true;
+                    player.SendMessage("SetTargetPos", goalPathfindingPos);
+                    Inventory.invInstance.AddItem(gameObject);
+                    Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
+                    Inventory.invInstance.holdingItem = false;
+                    myDragging = false;
+                    myState = invState.INVENTORY;
+                    colObject = col.gameObject;
+                }
+            }
         }
     }
 
@@ -190,6 +216,7 @@ public class Scarf : MonoBehaviour
 
     void OnMouseEnter()
     {
+        mouseOutside = false;
         if (myState == invState.SLEEPING)
         {
             scaled = true;
@@ -199,6 +226,7 @@ public class Scarf : MonoBehaviour
 
     void OnMouseExit()
     {
+        mouseOutside = true;
         if (myState == invState.SLEEPING && scaled)
         {
             scaled = false;
@@ -209,10 +237,14 @@ public class Scarf : MonoBehaviour
     void OnMouseDown()
     {
         myDistance = Vector2.Distance(transform.position, Camera.main.transform.position);
-        if (!myDragging)
+        if (!myDragging && !Inventory.invInstance.holdingItem && myState != invState.SLEEPING)
         {
+            Inventory.invInstance.holdingItem = true;
             myDragging = true;
             clickMove = true;
+            dragging = true;
+            Inventory.invInstance.SendMessage("RemoveItem", gameObject);
+            Inventory.invInstance.SendMessage("SetPositions");
         }
         this.gameObject.GetComponent<SpriteRenderer>().sortingOrder += 1;
         player.SendMessage("CanWalk", false);
@@ -225,10 +257,18 @@ public class Scarf : MonoBehaviour
             myDragging = true;
             clickMove = false;
             clickTimer = 0;
+            dragging = false;
+            Inventory.invInstance.holdingItem = true;
         }
         else
         {
+            if (myDragging)
+            {
+                Inventory.invInstance.holdingItem = false;
+            }
+
             myDragging = false;
+
 
             player.SendMessage("CanWalk", true);
             if (myState == invState.SLEEPING)
@@ -256,25 +296,19 @@ public class Scarf : MonoBehaviour
             }
             else if (myState == invState.INVENTORY)
             {
-                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
-                Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("AddItem", gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
                 gameObject.transform.position = myPos;
             }
             else if (myState != invState.INVENTORY && myState != invState.COMBINATION)
             {
                 Inventory.invInstance.SendMessage("RemoveItem", gameObject);
                 Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
                 myState = invState.INVENTORY;
             }
             this.gameObject.GetComponent<SpriteRenderer>().sortingOrder -= 1;
-        }
-    }
-
-    void Warp(string level)
-    {
-        if (level == "Dreamworld_Level01")
-        {
-            findObjects = true;
+            clickedGoal = true;
         }
     }
 

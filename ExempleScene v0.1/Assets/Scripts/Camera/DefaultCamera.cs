@@ -73,10 +73,10 @@ public class DefaultCamera : CameraMovement {
 
         if (thisCamera.enabled)
         {
-            Debug.Log(gameObject.name);
             if (Inventory.invInstance != null) {
                 Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x,
-                    Inventory.invInstance.transform.position.y, Inventory.invInstance.transform.position.z);
+                    thisCamera.transform.position.y - (height / 2) + Inventory.invInstance.currentOffsetY,
+                    Inventory.invInstance.transform.position.z);
 
             }
         }

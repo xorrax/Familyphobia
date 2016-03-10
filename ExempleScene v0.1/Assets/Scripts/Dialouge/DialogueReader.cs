@@ -7,11 +7,9 @@ public class DialogueReader : MonoBehaviour {
 
     public static float scaling = 1;
     public GameObject dialogueIn;
-    public Vector3 newPlayerPos;
     private Vector2 padding;
     public QAC current;
     public Font myFont;
-    public bool fixedPosition;
 
     private AudioSource audioSource;
     private int playerChoice;
@@ -21,9 +19,6 @@ public class DialogueReader : MonoBehaviour {
     public static Animator aJack, aBek, aLinda, aBee;
 
     private Pathfinding pf;
-    private Vector3 prewPlayerPos;
-
-    private Vector3 prewCameraPos;
 
     private float clipTimePlayed;
 
@@ -50,7 +45,6 @@ public class DialogueReader : MonoBehaviour {
             }
 
             padding.x = 20;
-            fixedPosition = false;
             cJack = new Vector4(0.278f, 0.419f, 0.259f, 1);
             cBek = new Vector4(0.835f, 0.71f, 0.643f, 1);
             cLinda = new Vector4(0.988f, 0.459f, 0, 1);
@@ -75,11 +69,6 @@ public class DialogueReader : MonoBehaviour {
     void Update() {
 
         if (current.type == dialogueProperty.start) {
-            if (fixedPosition) {
-                prewPlayerPos = pf.transform.position;
-                pf.transform.position = newPlayerPos;
-                pf.Target = newPlayerPos;
-            }
 
             pf.endPathfinding();
             pf.setIsActive(false);
@@ -130,10 +119,6 @@ public class DialogueReader : MonoBehaviour {
             audioSource.clip = new AudioClip();
             audioSource.Stop();
             pf.setIsActive(true);
-            if (fixedPosition) {
-                pf.transform.position = prewPlayerPos;
-                pf.Target = prewPlayerPos;
-            }
             this.enabled = false;
             newSceneWarp.LoadScene(newSceneWarp.nameOfScene);
 
@@ -142,10 +127,6 @@ public class DialogueReader : MonoBehaviour {
             audioSource.clip = new AudioClip();
             audioSource.Stop();
             pf.setIsActive(true);
-            if (fixedPosition) {
-                pf.transform.position = prewPlayerPos;
-                pf.Target = prewPlayerPos;
-            }
             this.enabled = false;
         }
     }
@@ -155,7 +136,7 @@ public class DialogueReader : MonoBehaviour {
 
         var style = GUI.skin.GetStyle("Label");
         style.font = myFont;
-        padding.y = Mathf.RoundToInt(40 * scaling);
+        padding.y = Mathf.RoundToInt(50 * scaling);
         style.fontSize = Mathf.RoundToInt(30 * scaling);
         if (current.name == "Jack") {
             style.normal.textColor = cJack;
@@ -270,7 +251,7 @@ public class DialogueReader : MonoBehaviour {
         } else if (current.type == dialogueProperty.NPC) {
 
             ySpacing = spacing(current.texts[0]);
-            ySpacing += 25;
+            ySpacing += 35;
 
             GUI.Label(new Rect(padding.x, Screen.height - ySpacing, Screen.width - padding.x, Screen.height), current.texts[0]);
             if (GUI.Button(new Rect(0, 0, Screen.width, Screen.height), "", "Label")) {

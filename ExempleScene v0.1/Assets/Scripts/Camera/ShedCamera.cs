@@ -105,17 +105,16 @@ public class ShedCamera : CameraMovement {
 
         if (thisCamera.enabled)
         {
-            //Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x - thisCamera.orthographicSize * thisCamera.aspect +
-            //    Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.width / 100 - 0.05f,
-            //    thisCamera.transform.position.y - thisCamera.orthographicSize * thisCamera.aspect / 2 -
-            //    Inventory.invInstance.GetComponent<SpriteRenderer>().sprite.rect.height / 50 + 0.1f + Inventory.invInstance.currentOffsetY,
-            //    Inventory.invInstance.transform.position.z);
-
+            //thisCamera.transform.position.x - (width / 2), thisCamera.transform.position.y - (height / 2)
             Inventory.invInstance.transform.position = new Vector3(thisCamera.transform.position.x,
-                (-thisCamera.orthographicSize * Screen.width / Screen.height) / 2 + Inventory.invInstance.currentOffsetY + 0.3f,
+                thisCamera.transform.position.y - (height / 2) + Inventory.invInstance.currentOffsetY + 0.3f,
                 Inventory.invInstance.transform.position.z);
 
-            Debug.Log(thisCamera.pixelWidth);
+            if (hasScaled) {
+                Inventory.invInstance.GetComponent<SpriteRenderer>().enabled = true;
+                Inventory.invInstance.ShowItems();
+                hasScaled = false;
+            }
         }
     }
 
@@ -126,9 +125,8 @@ public class ShedCamera : CameraMovement {
                 target.SendMessage("CanWalk", false);
                 if (Inventory.invInstance != null)
                 {
-                    Inventory.invInstance.SetInventory(false);
+                    Inventory.invInstance.HideItems();
                     Inventory.invInstance.GetComponent<SpriteRenderer>().enabled = false;
-                    //Inventory.invInstance.transform.localScale = new Vector3(Inventory.invInstance.transform.localScale.x + 0.01f, Inventory.invInstance.transform.localScale.y + 0.01f, Inventory.invInstance.transform.localScale.z);
                 }
                 thisCamera.orthographicSize += 0.01f;
             }
@@ -136,10 +134,7 @@ public class ShedCamera : CameraMovement {
         }
         if (thisCamera.orthographicSize >= zoomOutSize && !hasScaled)
         {
-            float newScale = (width / originalWidth);
-            Inventory.invInstance.transform.localScale = new Vector3(Inventory.invInstance.transform.localScale.x * newScale - 0.01f, Inventory.invInstance.transform.localScale.y * newScale, transform.localScale.z);
-            //Inventory.invInstance.SendMessage("SetPositions");
-            Inventory.invInstance.GetComponent<SpriteRenderer>().enabled = true;
+            Inventory.invInstance.transform.position = new Vector3(34.18703f, -5.91033f, Inventory.invInstance.transform.position.z);
             target.SendMessage("CanWalk", true);
             hasScaled = true;
         }

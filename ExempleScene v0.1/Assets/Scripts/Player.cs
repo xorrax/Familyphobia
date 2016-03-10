@@ -24,6 +24,7 @@ public class Player : MonoBehaviour {
     private GameObject interactedObject;
     private bool canMove = true;
     private Vector3 targetPosition = Vector3.zero;
+    private Vector3 hitPos = Vector3.zero;
 
     public string currentRoom;
 
@@ -87,14 +88,15 @@ public class Player : MonoBehaviour {
                         //Skickar positionen till target i movement
                         pathfinding.Target = targetPosition;
                     }
+                    hitPos = hit.collider.transform.position;
+                    float tempDist = gameObject.GetComponent<BoxCollider>().bounds.size.x + hit.collider.bounds.size.x + 3;
+                    if (Vector3.Distance(transform.position, hitPos) <= tempDist) {
 
-                    float tempDist = gameObject.GetComponent<BoxCollider>().bounds.size.x + hit.collider.bounds.size.x + 1;
-                    if (Vector3.Distance(transform.position, hit.transform.position) <= tempDist) {
-
-                        if (hit.collider.tag == "NPC" || hit.collider.tag == "Interactable") {
+                        if (hit.collider.tag == "NPC" || hit.collider.tag == "Item" || hit.collider.tag == "warpInter" && Input.GetMouseButtonDown(0)) {
                             hit.collider.GetComponent<NPC>().self.interact();
                         }
                     } else {
+                        SetTargetPos(hitPos);
                         interacted = true;
                         interactedObject = hit.collider.gameObject;
                     }

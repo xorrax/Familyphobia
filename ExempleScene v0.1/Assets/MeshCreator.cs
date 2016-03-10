@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEditor;
+//using UnityEditor;
 
 [ExecuteInEditMode]
 public class MeshCreator : MonoBehaviour
@@ -178,7 +178,7 @@ public class MeshCreator : MonoBehaviour
     void saveAsset()
     {
         Mesh m1 = GetComponent<MeshCollider>().sharedMesh;
-       AssetDatabase.CreateAsset(m1, "Assets/" + meshName + ".asset"); // saves to "assets/"
+       //AssetDatabase.CreateAsset(m1, "Assets/" + meshName + ".asset"); // saves to "assets/"
     }
 
     void destroyThis()

@@ -5,7 +5,10 @@ public class SharedVariables : MonoBehaviour {
     private static string newRoom;
     private static string newScene;
     private static bool outFromDreamworld;
-    private static bool firstTimeDreamworld;
+    private static bool firstTimeDreamworld = true;
+    public static bool firstTimeBeeRoom = true;
+    public static bool firstTimeShedToEntrance = true;
+    public static bool firstTimeRealWorld = true;
 
     public static bool OutFromDreamworld {
         set {

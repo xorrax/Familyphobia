@@ -28,9 +28,6 @@ public class Lawnmower : MonoBehaviour {
 	}
 
     void OnMouseOver() {
-        if (Input.GetMouseButtonDown(0)) {
-            cutGrass();
-        }
     }
 
     public void cutGrass() {

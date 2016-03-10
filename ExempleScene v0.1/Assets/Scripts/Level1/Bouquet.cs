@@ -21,7 +21,7 @@ public class Bouquet : MonoBehaviour {
     private bool sentFlowerAmount = false;
     private bool clickMove = false;
     private float clickTimer = 0f;
-    private Vector2 myPos = Vector2.zero;
+    private Vector3 myPos = Vector2.zero;
     private GameObject player;
     private GameObject otherComboObject;
 
@@ -123,7 +123,7 @@ public class Bouquet : MonoBehaviour {
             myState = invState.DRAGGING;
         }
     }
-    void SetPosition(Vector2 pos){
+    void SetPosition(Vector3 pos){
         myPos = pos;
     }
 
