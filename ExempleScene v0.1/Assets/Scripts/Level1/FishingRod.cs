@@ -57,6 +57,15 @@ public class FishingRod : MonoBehaviour
     {
         rodSprite = gameObject.GetComponent<SpriteRenderer>().sprite;
 
+<<<<<<< HEAD
+=======
+        //if (comboName != string.Empty && combinationObject == null)
+        //    combinationObject = GameObject.Find(comboName);
+
+        //if (goalName != string.Empty && goalObject == null)
+        //    goalObject = GameObject.Find(goalName);
+
+>>>>>>> origin/master
         originalColor = this.gameObject.GetComponent<Renderer>().material.color;
 
         player = GameObject.FindGameObjectWithTag("Player");
@@ -146,7 +155,15 @@ public class FishingRod : MonoBehaviour
 
     void OnTriggerStay(Collider col)
     {
+<<<<<<< HEAD
         Debug.Log(col.name + " : " + lindaDistracted.ToString() + " : " + hasWorm.ToString());
+=======
+        if(col.name == goalName)
+        {
+            GameObject.Find(goalName).SendMessage("HasWorm", hasWorm);
+        }
+
+>>>>>>> origin/master
         if (dragging)
         {
             if (Input.GetMouseButtonUp(0))
@@ -211,18 +228,31 @@ public class FishingRod : MonoBehaviour
             {
                 myState = invState.COMBINATION;
                 GameObject.Find(goalName).SendMessage("HasWorm", hasWorm);
+<<<<<<< HEAD
                 if (hasWorm) {
                     if (Vector3.Distance(player.transform.position, goalPathfindingPos) <= 0.5f) {
+=======
+                if (hasWorm)
+                {
+                    if (Vector3.Distance(player.transform.position, goalPathfindingPos) <= 0.5f)
+                    {
+>>>>>>> origin/master
                         Inventory.invInstance.SendMessage("AddItem", this.gameObject);
                         hasWorm = false;
                         GameObject.Find(goalName).SendMessage("HasWorm", hasWorm);
                         gameObject.GetComponent<SpriteRenderer>().sprite = rodSprite;
+<<<<<<< HEAD
                         myState = invState.INVENTORY;
                     }
                     else
                     {
                         onGoal = true;
                     }
+=======
+                    }
+                    else
+                        onGoal = true;
+>>>>>>> origin/master
                 }
                 else if (!hasWorm && !lindaDistracted)
                 {
@@ -357,8 +387,8 @@ public class FishingRod : MonoBehaviour
             }
             else if (myState == invState.INVENTORY)
             {
-                Inventory.invInstance.SendMessage("RemoveItem", gameObject);
                 Inventory.invInstance.SendMessage("AddItem", this.gameObject);
+                Inventory.invInstance.SendMessage("SetPositions");
                 this.gameObject.transform.position = myPos;
             }
             else if (myState != invState.INVENTORY && myState != invState.COMBINATION)

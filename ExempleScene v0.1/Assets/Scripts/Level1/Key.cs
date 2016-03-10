@@ -74,7 +74,6 @@ public class Key : MonoBehaviour
             Inventory.invInstance.SendMessage("RemoveItem", this.gameObject);
             Inventory.invInstance.SendMessage("SetPositions", this.gameObject);
             this.gameObject.SetActive(false);
-            //Gå till bi-minipussel
         }
 
         if (Vector3.Distance(player.transform.position, pathfindingPos) <= 0.5f && onCombine)
@@ -132,8 +131,18 @@ public class Key : MonoBehaviour
 
     void OnTriggerStay(Collider col)
     {
+<<<<<<< HEAD
         if (dragging)
         {
+=======
+        if(col.name == comboName)
+        {
+            GameObject.Find(comboName).SendMessage("LindaDistracted", lindaDistracted);
+        }
+
+        if (dragging)
+        {
+>>>>>>> origin/master
             if (combinationObject != null && col.gameObject.name == combinationObject.name && Input.GetMouseButtonUp(0))
             {
                 if (Vector3.Distance(player.transform.position, pathfindingPos) <= 0.5f)
@@ -194,6 +203,7 @@ public class Key : MonoBehaviour
                 if (col.gameObject.name == comboName)
                 {
                     if (Vector3.Distance(player.transform.position, pathfindingPos) <= 0.5f)
+<<<<<<< HEAD
                     {
                         if (!hasWorm && lindaDistracted)
                         {
@@ -214,6 +224,28 @@ public class Key : MonoBehaviour
                     }
                     else
                     {
+=======
+                    {
+                        if (!hasWorm && lindaDistracted)
+                        {
+                            if (scaled)
+                            {
+                                scaled = false;
+                                gameObject.transform.localScale = new Vector3(1f, 1f, 1);
+                            }
+                            player.SendMessage("FishAnimation");
+                            player.SendMessage("CanWalk", true);
+                            Inventory.invInstance.SendMessage("AddItem", gameObject);
+                            myState = invState.INVENTORY;
+                            Inventory.invInstance.SendMessage("RemoveItem", combinationObject);
+                            Inventory.invInstance.SendMessage("SetPositions");
+                            pickedUp = true;
+                            combinationObject.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+>>>>>>> origin/master
                         player.SendMessage("SetTargetPos", pathfindingPos);
                         onCombine = true;
                     }

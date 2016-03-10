@@ -33,9 +33,12 @@ public class Stol : MonoBehaviour {
 
     void OnTriggerStay(Collider col){
 
+<<<<<<< HEAD
         if(col.name == cupcake)
             GameObject.Find(cupcake).SendMessage("SetGoalDistance", goalDistance);
 
+=======
+>>>>>>> origin/master
         if (col.name == cupcake && Input.GetMouseButton(0))
         {
             if (Vector3.Distance(player.transform.position, transform.position) <= goalDistance)
@@ -46,7 +49,10 @@ public class Stol : MonoBehaviour {
             }
             else
             {
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                 player.SendMessage("SetTargetPos", pathfindingPos);
                 onGoal = true;
             }

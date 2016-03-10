@@ -36,7 +36,11 @@ public class Object : MonoBehaviour
     private bool clickMove = false;
     private bool dragging = false;
     private float clickTimer = 0f;
+<<<<<<< HEAD
     private float goalDistance = 0f;
+=======
+    public float goalDistance;
+>>>>>>> origin/master
     private enum invState
     {
         DRAGGING,  //..
@@ -66,6 +70,7 @@ public class Object : MonoBehaviour
 
     void Update()
     {
+<<<<<<< HEAD
         //if (combinationObject != null)
         //{
         //    if (combinationObject.activeSelf)
@@ -75,6 +80,8 @@ public class Object : MonoBehaviour
         //    }
         //}
 
+=======
+>>>>>>> origin/master
         if (clicked && Vector3.Distance(player.transform.position, transform.position) <= clickDistance && !locked)
         {
             if (scaled)
@@ -355,7 +362,11 @@ public class Object : MonoBehaviour
 
     void OnMouseUp()
     {
+<<<<<<< HEAD
         if(clickMove &&  myState != invState.SLEEPING)
+=======
+        if (clickMove &&  myState != invState.SLEEPING)
+>>>>>>> origin/master
         {
             myDragging = true;
             clickMove = false;
